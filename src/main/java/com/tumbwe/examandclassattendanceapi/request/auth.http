@@ -1,0 +1,98 @@
+POST http://localhost:8088/api/v1/auth/register
+Content-Type: application/json
+
+{
+    "phoneNumber": "ii",
+   "fullName": "ful",
+  "email": "gomagiftk01@gmail.com",
+  "biography": "we the gods",
+  "password": "P@ssw0rd!",
+  "role": "ADMIN"
+}
+
+
+### login
+POST http://localhost:8088/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "gomagiftk01@gmail.com",
+  "password": "$10$BymKlx86EQZWOZGrF2JMpOC7pSzO6sSzc9ml1ZJPetGGJRG./rNo2"
+}
+
+### start session
+POST http://localhost:8088/api/v1/attendance/start?courseCode=CSC4004&attendanceType=LAB
+
+### get
+GET http://localhost:8088/api/v1/attendance/hello
+
+### mark attendance
+POST http://localhost:8088/api/v1/attendance/mark-attendance
+Content-Type: application/json
+
+{
+  "courseCode": "CSC4004",
+  "attendanceType": "LAB",
+  "studentPrints": [
+    "OTk4M2ViNDctZWNlYS00NWE4LUhmMWMtYjYyZWRkNzViZmRh"
+  ]
+
+}
+
+###
+GET http://localhost:8088/api/v1/course/all-courses
+
+###
+POST http://localhost:8088/api/v1/course/add-course
+Content-Type: application/json
+
+{
+  "courseCode": "CSC 2101",
+  "courseName": "Systems"
+}
+
+
+### USE THESE ENDPOINTS
+
+### check course availability
+GET http://51.20.113.87:8088/api/v1/course/is-available-course?courseCode=CSC 3101
+
+### enroll student to a course
+POST http://51.20.113.87:8088/api/v1/enroll/add-student-to-course
+Content-Type: application/json
+
+{
+  "studentId": "201020110",
+  "courseCode": "CSC 3101"
+}
+
+
+### get all students in database
+GET http://51.20.113.87:8088/api/v1/student/all-students
+
+
+### view all courses in database
+GET http://51.20.113.87:8088/api/v1/course/all-courses
+
+
+### add courses
+POST http://localhost:8088/api/v1/course/add-course
+Content-Type: application/json
+
+{
+  "courseCode": "CSC 2101",
+  "courseName": "Systems"
+}
+
+### add students
+POST http://Self:8088/api/v1/students/add-student
+Content-Type: application/json
+
+{
+  "studentId": "201020110",
+  "fingerprintTemplate": "OTk4M2ViNDctZWNlYS00NWE4LUhmMWMtYjYyZWRkNzViZmRh",
+  "fullname": "Gabi nsayu"
+}
+
+### get students of a course
+GET http://51.20.113.87:8088/api/v1/enroll/all-course-students?courseCode=CSC 3101

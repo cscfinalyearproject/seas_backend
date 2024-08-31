@@ -6,6 +6,7 @@ import com.tumbwe.examandclassattendanceapi.dto.EnrollmentResponse;
 import com.tumbwe.examandclassattendanceapi.repository.CourseRepository;
 import com.tumbwe.examandclassattendanceapi.service.CourseService;
 import com.tumbwe.examandclassattendanceapi.service.EnrollmentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class EnrollmentController {
     private final EnrollmentService enrollmentService;
 
     @PostMapping(path = "/add-student-to-course")
-    public ResponseEntity<?> addStudentToCourse(@RequestBody EnrollmentDto enrollmentDto){
+    public ResponseEntity<?> addStudentToCourse(@Valid @RequestBody EnrollmentDto enrollmentDto){
         try {
             EnrollmentResponse response = enrollmentService.addStudentToCourse(enrollmentDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);

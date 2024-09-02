@@ -14,4 +14,5 @@ public class StudentDto {
     private String fingerprintTemplate;
     private String fullname;
     private String message;
+    private String department;
 }

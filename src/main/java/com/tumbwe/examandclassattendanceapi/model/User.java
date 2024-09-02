@@ -31,6 +31,10 @@ public class User implements UserDetails {
     @Column(name = "is_verified")
     private Boolean isVerified;
 
+    @ManyToOne
+    @JoinColumn(name = "department_id", referencedColumnName = "id")
+    private Department department;
+
     @Enumerated(value = EnumType.STRING)
     Role role;
 

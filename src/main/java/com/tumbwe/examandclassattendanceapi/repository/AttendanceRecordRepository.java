@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Registered
 public interface AttendanceRecordRepository extends JpaRepository<AttendanceRecord, UUID> {
+    public AttendanceRecord findAllByStudentOrderByStudent(UUID studentGroup);
 }

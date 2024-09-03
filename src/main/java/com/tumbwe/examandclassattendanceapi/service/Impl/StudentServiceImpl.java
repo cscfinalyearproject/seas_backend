@@ -3,13 +3,10 @@ package com.tumbwe.examandclassattendanceapi.service.Impl;
 import com.tumbwe.examandclassattendanceapi.dto.StudentDto;
 import com.tumbwe.examandclassattendanceapi.exception.InternalServerException;
 import com.tumbwe.examandclassattendanceapi.exception.ResourceNotFoundException;
-import com.tumbwe.examandclassattendanceapi.model.Department;
 import com.tumbwe.examandclassattendanceapi.model.Student;
-import com.tumbwe.examandclassattendanceapi.repository.DepartmentRepository;
 import com.tumbwe.examandclassattendanceapi.repository.StudentRepository;
 import com.tumbwe.examandclassattendanceapi.service.StudentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +17,6 @@ import java.util.Optional;
 public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
-    private final DepartmentRepository departmentRepository;
 
     @Override
     public StudentDto addStudent(StudentDto studentDto) {
@@ -31,8 +27,6 @@ public class StudentServiceImpl implements StudentService {
         {
             Student newStudent = new Student();
             newStudent.setStudentId(studentDto.getStudentId());
-            Department department = departmentRepository.findByName(studentDto.getDepartment());
-            newStudent.setDepartment(department);
             if (!studentDto.getFullname().isBlank())
                 newStudent.setFullName(studentDto.getFullname());
             if (!studentDto.getFingerprintTemplate().isBlank())
@@ -40,7 +34,7 @@ public class StudentServiceImpl implements StudentService {
             try {
                 Student savedStudent = studentRepository.save(newStudent);
                 String message = "Student saved successfully";
-                return new StudentDto(savedStudent.getStudentId(), savedStudent.getFingerprintTemplate(),savedStudent.getFullName(), message,savedStudent.getDepartment().getName());
+                return new StudentDto(savedStudent.getStudentId(), savedStudent.getFingerprintTemplate(),savedStudent.getFullName(), message);
             }
             catch (Exception e){
                 throw new InternalServerException("Error saving student: " + e.getMessage());
@@ -54,7 +48,7 @@ public class StudentServiceImpl implements StudentService {
 
             Student savedStudent = studentRepository.save(updateStudent);
             String message = "Student Fingerprint Template added successfully";
-            return new StudentDto(savedStudent.getStudentId(), savedStudent.getFingerprintTemplate(),savedStudent.getFullName(), message,savedStudent.getDepartment().getName());
+            return new StudentDto(savedStudent.getStudentId(), savedStudent.getFingerprintTemplate(),savedStudent.getFullName(), message);
         }
     }
 

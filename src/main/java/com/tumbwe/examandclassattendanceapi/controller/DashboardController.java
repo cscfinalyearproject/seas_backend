@@ -16,10 +16,10 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
 
-    @GetMapping(path = "/getStudentsByDepartment/{department}")
-    public ResponseEntity<?> findByDepartment(@PathVariable("department") String department) {
+    @GetMapping(path = "/getStudentsByDepartment/{id}")
+    public ResponseEntity<?> findByDepartment(@PathVariable("id") Long id) {
         try {
-            return ResponseEntity.ok(dashboardService.getStudentsByDepartment(department));
+            return ResponseEntity.ok(dashboardService.getStudentsByDepartment(id));
         }catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
@@ -29,6 +29,15 @@ public class DashboardController {
     public ResponseEntity<?> findByCourse(@PathVariable("courseCode") String courseCode) {
         try {
             return ResponseEntity.ok(dashboardService.getStudentsByCourse(courseCode));
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping(path = "/getAttendanceByCourse/{courseCode}")
+    public ResponseEntity<?> findByAttendanceByCourse(@PathVariable("courseCode") String courseCode) {
+        try {
+            return ResponseEntity.ok(dashboardService.getAttendanceRecordByCourse(courseCode));
         }catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }

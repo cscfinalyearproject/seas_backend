@@ -16,7 +16,7 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
 
-    @GetMapping(path = "/getByDepartment/{department}")
+    @GetMapping(path = "/getStudentsByDepartment/{department}")
     public ResponseEntity<?> findByDepartment(@PathVariable("department") String department) {
         try {
             return ResponseEntity.ok(dashboardService.getStudentsByDepartment(department));
@@ -24,4 +24,15 @@ public class DashboardController {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
+
+    @GetMapping(path = "/getStudentsByDepartment/{courseCode}")
+    public ResponseEntity<?> findByCourse(@PathVariable("courseCode") String courseCode) {
+        try {
+            return ResponseEntity.ok(dashboardService.getStudentsByCourse(courseCode));
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+
 }

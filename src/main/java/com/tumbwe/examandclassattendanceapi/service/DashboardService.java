@@ -10,4 +10,5 @@ public interface DashboardService {
     public List<Student> getStudentsByDepartment(Long id);
     public Set<Student> getStudentsByCourse(String course);
     public List<AttendanceRecord> getAttendanceRecordByCourse(String course);
+    public List<AttendanceRecord> getAttendanceRecordByStudent(String id);
 }

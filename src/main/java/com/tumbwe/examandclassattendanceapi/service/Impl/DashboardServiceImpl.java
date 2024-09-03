@@ -43,5 +43,14 @@ public class DashboardServiceImpl implements DashboardService {
         return attendanceRecordRepository.findAllByCourseOrderByStudent(courseRecord);
     }
 
+    @Override
+    public List<AttendanceRecord> getAttendanceRecordByStudent(String id) {
+        Student student = studentRepository.findByStudentId(id);
+        if(student == null) {
+            return new ArrayList<>();
+        }
+        return attendanceRecordRepository.findAllByStudentOrderByStudent(student);
+    }
+
 
 }

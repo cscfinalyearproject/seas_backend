@@ -43,5 +43,14 @@ public class DashboardController {
         }
     }
 
+    @GetMapping(path = "/getAttendanceByStudent/{studentId}")
+    public ResponseEntity<?> findByAttendanceByStudent(@PathVariable("studentId") String studentId) {
+        try {
+            return ResponseEntity.ok(dashboardService.getAttendanceRecordByStudent(studentId));
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
 
 }

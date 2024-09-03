@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -24,8 +25,16 @@ public class DashboardServiceImpl implements DashboardService {
     private final AttendanceRecordRepository attendanceRecordRepository;
 
     @Override
-    public List<Student> getStudentsByDepartment(Long id) {
-        return studentRepository.findAllByDepartment(departmentRepository.findById(id).orElse(null));
+    public Set<Student> getStudentsByDepartment(Long id) {
+        var courses = courseRepository.findAllByDepartment(departmentRepository.findById(id).orElse(null));
+        Set<Student> students = new HashSet<>();
+
+        for (var course : courses) {
+            var studentRecords = courseRepository.findStudentsByCourseCode(course.getCourseCode());
+            students.addAll(studentRecords);
+        }
+
+        return students;
     }
 
     @Override

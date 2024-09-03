@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface DashboardService {
-    public List<Student> getStudentsByDepartment(Long id);
+    public Set<Student> getStudentsByDepartment(Long id);
     public Set<Student> getStudentsByCourse(String course);
     public List<AttendanceRecord> getAttendanceRecordByCourse(String course);
     public List<AttendanceRecord> getAttendanceRecordByStudent(String id);

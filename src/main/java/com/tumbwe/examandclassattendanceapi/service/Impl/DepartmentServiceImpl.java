@@ -22,12 +22,14 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public List<DepartmentDto> getAllDepartments() {
+
         List<Department> departments = departmentRepository.findAll();
         List<DepartmentDto> departmentDtos = new ArrayList<>();
         for (Department department : departments) {
             DepartmentDto departmentDto = new DepartmentDto();
             departmentDto.setId(department.getId());
             departmentDto.setName(department.getName());
+            departmentDto.setSchoolId(department.getSchool().getId());
             departmentDtos.add(departmentDto);
         }
         return departmentDtos;

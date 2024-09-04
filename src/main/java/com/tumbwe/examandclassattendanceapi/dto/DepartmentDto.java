@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class DepartmentDto {
     private String name;
-    private int schoolId;
+    private Long schoolId;
     private Long id;
 }

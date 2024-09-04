@@ -25,7 +25,7 @@ public class DashboardController {
         }
     }
 
-    @GetMapping(path = "/getStudentsByDepartment/{courseCode}")
+    @GetMapping(path = "/getStudentsByCourse/{courseCode}")
     public ResponseEntity<?> findByCourse(@PathVariable("courseCode") String courseCode) {
         try {
             return ResponseEntity.ok(dashboardService.getStudentsByCourse(courseCode));

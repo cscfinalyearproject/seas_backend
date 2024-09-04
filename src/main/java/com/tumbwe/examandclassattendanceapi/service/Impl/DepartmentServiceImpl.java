@@ -36,8 +36,16 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public Department getDepartmentById(long id) {
-        return departmentRepository.findById(id).orElse(null);
+    public DepartmentDto getDepartmentById(long id) {
+        var dept = departmentRepository.findById(id).orElse(null);
+        if (dept == null) {
+            return null;
+        }
+        var departmentDto = new DepartmentDto();
+        departmentDto.setId(dept.getId());
+        departmentDto.setName(dept.getName());
+        departmentDto.setSchoolId(dept.getSchool().getId());
+        return departmentDto;
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface DepartmentService {
     public List<DepartmentDto> getAllDepartments();
-    public Department getDepartmentById(long id);
+    public DepartmentDto getDepartmentById(long id);
     public boolean addDepartment(DepartmentDto departmentDto);
     public boolean updateDepartment(DepartmentDto departmentDto);
     public boolean deleteDepartment(long id);

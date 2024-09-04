@@ -9,6 +9,7 @@ import com.tumbwe.examandclassattendanceapi.service.SchoolService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,8 +21,16 @@ public class DepartmentServiceImpl implements DepartmentService {
     private final SchoolService schoolService;
 
     @Override
-    public List<Department> getAllDepartments() {
-        return departmentRepository.findAll();
+    public List<DepartmentDto> getAllDepartments() {
+        List<Department> departments = departmentRepository.findAll();
+        List<DepartmentDto> departmentDtos = new ArrayList<>();
+        for (Department department : departments) {
+            DepartmentDto departmentDto = new DepartmentDto();
+            departmentDto.setId(department.getId());
+            departmentDto.setName(department.getName());
+            departmentDtos.add(departmentDto);
+        }
+        return departmentDtos;
     }
 
     @Override

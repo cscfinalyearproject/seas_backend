@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/department")
+@CrossOrigin("*")
 public class DepartmentController {
     private final DepartmentService departmentService;
 

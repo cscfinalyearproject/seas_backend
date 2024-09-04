@@ -12,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/school")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class SchoolController {
 
     private final SchoolService schoolService;

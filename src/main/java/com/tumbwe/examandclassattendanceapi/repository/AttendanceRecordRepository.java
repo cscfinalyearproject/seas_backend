@@ -14,4 +14,6 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
 //    public AttendanceRecord findAllByStudentOrderByStudent(UUID studentGroup);
     public List<AttendanceRecord> findAllByCourseOrderByStudent(Course course);
     public List<AttendanceRecord> findAllByStudentOrderByStudent(Student student);
+    public List<AttendanceRecord> findAllByStudentAndCourseOrderByStudent(Student student, Course course);
+
 }

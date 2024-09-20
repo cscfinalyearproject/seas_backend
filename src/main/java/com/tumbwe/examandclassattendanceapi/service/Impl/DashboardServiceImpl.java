@@ -1,5 +1,6 @@
 package com.tumbwe.examandclassattendanceapi.service.Impl;
 
+import com.tumbwe.examandclassattendanceapi.dto.AttendanceRecordDto;
 import com.tumbwe.examandclassattendanceapi.model.AttendanceRecord;
 import com.tumbwe.examandclassattendanceapi.model.Student;
 import com.tumbwe.examandclassattendanceapi.repository.AttendanceRecordRepository;
@@ -10,10 +11,13 @@ import com.tumbwe.examandclassattendanceapi.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -61,5 +65,41 @@ public class DashboardServiceImpl implements DashboardService {
         return attendanceRecordRepository.findAllByStudentOrderByStudent(student);
     }
 
+    @Override
+    public List<AttendanceRecordDto> getAttendanceCount(String courseCode, String attendanceType, String year) {
+        List<Object[]> rawRecords = attendanceRecordRepository.getAttendanceCount(courseCode, attendanceType, year);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+
+        return rawRecords.stream()
+                .map(record -> new AttendanceRecordDto(
+                        ((Number) record[0]).longValue(), // attendanceCount
+                        (String) record[1],               // studentId
+                        (String) record[2],               // courseCode
+                        ((Date) record[3]).toLocalDate().format(formatter),               // timeStamp
+                        (String) record[4],               // attendanceType
+                        (String) record[5]                // fullName
+                ))
+                .toList();
+    }
+
+    @Override
+    public List<AttendanceRecordDto> getPresent(String courseCode, String attendanceType, String year) {
+        List<Object[]> rawRecords = attendanceRecordRepository.getPresentStudents(courseCode, attendanceType, "%"+year+"%");
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        return rawRecords.stream()
+                .map(record -> new AttendanceRecordDto(
+                        ((Number) 0).longValue(), // attendanceCount
+                        (String) record[4],               // studentId
+                        (String) record[3],               // courseCode
+                        ((Date) record[2]).toLocalDate().format(formatter),               // timeStamp
+                        (String) record[1],               // attendanceType
+                        (String) record[5]                // fullName
+                ))
+                .toList();
+    }
 
 }

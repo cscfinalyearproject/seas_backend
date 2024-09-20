@@ -50,6 +50,22 @@ public class DashboardController {
         }
     }
 
+    @GetMapping(path = "/getStudentByCourse")
+    public ResponseEntity<?> findByStudentByCourse(@RequestParam("courseCode") String courseCode, @RequestParam("attendanceType") String attendanceType, @RequestParam("year") String year) {
+        try {
+            return ResponseEntity.ok(dashboardService.getAttendanceCount(courseCode,attendanceType,year));
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
 
+    @GetMapping(path = "/getPresent")
+    public ResponseEntity<?> findPresent(@RequestParam("courseCode") String courseCode, @RequestParam("attendanceType") String attendanceType, @RequestParam("date") String date) {
+        try {
+            return ResponseEntity.ok(dashboardService.getPresent(courseCode,attendanceType,date));
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
 
 }

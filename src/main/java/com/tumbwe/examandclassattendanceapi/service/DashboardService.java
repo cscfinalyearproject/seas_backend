@@ -15,4 +15,5 @@ public interface DashboardService {
     public List<AttendanceRecord> getAttendanceRecordByStudent(String id);
     public List<AttendanceRecordDto> getAttendanceCount(String courseCode, String attendanceType, String year);
     public List<AttendanceRecordDto> getPresent(String courseCode, String attendanceType, String year);
+    List<AttendanceRecordDto> getAbsentStudents(String courseCode);
 }

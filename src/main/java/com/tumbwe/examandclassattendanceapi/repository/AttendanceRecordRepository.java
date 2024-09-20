@@ -39,4 +39,13 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
     List<Object[]> getPresentStudents(@Param("courseCode") String courseCode,
                                       @Param("attendanceType") String attendanceType,
                                       @Param("date") String date);
+
+    @Query(value = "SELECT s.full_name, s.student_id  " +
+            "FROM students s " +
+            "JOIN course_student cs ON cs.student_id = s.student_id " +
+            "LEFT JOIN attendance_record ar ON ar.student_id = s.student_id " +
+            "WHERE cs.course_code = :courseCode " +
+            "AND ar.attendance_id IS NULL",
+            nativeQuery = true)
+    List<Object[]> getAbsentStudents(@Param("courseCode") String courseCode);
 }

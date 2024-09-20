@@ -102,4 +102,20 @@ public class DashboardServiceImpl implements DashboardService {
                 .toList();
     }
 
+    @Override
+    public List<AttendanceRecordDto> getAbsentStudents(String courseCode) {
+        List<Object[]> rawRecords = attendanceRecordRepository.getAbsentStudents(courseCode);
+
+        return rawRecords.stream()
+                .map(record -> new AttendanceRecordDto(
+                        ((Number) 0).longValue(), // attendanceCount
+                        (String) record[1],               // studentId
+                        (String) null,               // courseCode
+                        (String) null,               // timeStamp
+                        (String) null,               // attendanceType
+                        (String) record[0]                // fullName
+                ))
+                .toList();
+    }
+
 }

@@ -68,4 +68,13 @@ public class DashboardController {
         }
     }
 
+    @GetMapping(path = "/getAbsent")
+    public ResponseEntity<?> findAbsent(@RequestParam("courseCode") String courseCode) {
+        try {
+            return ResponseEntity.ok(dashboardService.getAbsentStudents(courseCode));
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
 }

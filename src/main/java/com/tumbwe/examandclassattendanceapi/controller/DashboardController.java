@@ -96,4 +96,13 @@ public class DashboardController {
         }
     }
 
+    @GetMapping(path = "/getCourseByDepartment/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getCourseByDepartment(@PathVariable Long departmentId) {
+        try {
+            return ResponseEntity.ok(dashboardService.getCourseByDepartment(departmentId));
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
 }

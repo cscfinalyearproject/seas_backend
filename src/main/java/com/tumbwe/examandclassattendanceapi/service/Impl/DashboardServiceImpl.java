@@ -2,6 +2,7 @@ package com.tumbwe.examandclassattendanceapi.service.Impl;
 
 import com.tumbwe.examandclassattendanceapi.dto.AttendanceRecordDto;
 import com.tumbwe.examandclassattendanceapi.dto.AttendanceSessionDto;
+import com.tumbwe.examandclassattendanceapi.dto.CourseResponseDto;
 import com.tumbwe.examandclassattendanceapi.model.AttendanceRecord;
 import com.tumbwe.examandclassattendanceapi.model.AttendanceSession;
 import com.tumbwe.examandclassattendanceapi.model.Course;
@@ -11,13 +12,13 @@ import com.tumbwe.examandclassattendanceapi.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
+
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -139,6 +140,27 @@ public class DashboardServiceImpl implements DashboardService {
             attendanceRecordDtos.add(attendanceRecordDto);
         }
         return attendanceRecordDtos;
+    }
+
+    @Override
+    public List<CourseResponseDto> getCourseByDepartment(Long id) {
+        var dep = departmentRepository.findById(id).orElse(null);
+        if(dep == null) {
+            return new ArrayList<>();
+        }
+        var courses = courseRepository.findAllByDepartment(dep);
+
+        List<CourseResponseDto> courseResponseDtos = new ArrayList<>();
+
+        for (var course : courses) {
+            CourseResponseDto courseResponseDto = new CourseResponseDto();
+            courseResponseDto.setCourseCode(course.getCourseCode());
+            courseResponseDto.setCourseName(course.getCourseName());
+            courseResponseDto.setDepartmentId(dep.getId());
+            courseResponseDtos.add(courseResponseDto);
+        }
+
+        return courseResponseDtos;
     }
 
 }

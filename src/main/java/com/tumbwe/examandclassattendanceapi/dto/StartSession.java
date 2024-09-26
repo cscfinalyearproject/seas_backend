@@ -8,7 +8,7 @@ import java.util.UUID;
 @Data
 public class StartSession {
 
-    private UUID sessionId;
+    private Long sessionId;
     private AttendanceType type;
     private String courseCode;
 

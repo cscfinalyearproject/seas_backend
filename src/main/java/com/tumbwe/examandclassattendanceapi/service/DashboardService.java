@@ -1,7 +1,9 @@
 package com.tumbwe.examandclassattendanceapi.service;
 
 import com.tumbwe.examandclassattendanceapi.dto.AttendanceRecordDto;
+import com.tumbwe.examandclassattendanceapi.dto.AttendanceSessionDto;
 import com.tumbwe.examandclassattendanceapi.model.AttendanceRecord;
+import com.tumbwe.examandclassattendanceapi.model.AttendanceSession;
 import com.tumbwe.examandclassattendanceapi.model.Student;
 import org.springframework.data.repository.query.Param;
 
@@ -16,4 +18,6 @@ public interface DashboardService {
     public List<AttendanceRecordDto> getAttendanceCount(String courseCode, String attendanceType, String year);
     public List<AttendanceRecordDto> getPresent(String courseCode, String attendanceType, String year);
     List<AttendanceRecordDto> getAbsentStudents(String courseCode);
+    List<AttendanceSessionDto> getSessions(String courseCode);
+    List<AttendanceRecordDto> getRecords(Long id);
 }

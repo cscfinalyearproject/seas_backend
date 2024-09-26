@@ -15,9 +15,9 @@ import java.util.UUID;
 public class Verification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private UUID id;
+    private Long id;
 
     @Column(name = "otp", length = 4)
     private String otp;

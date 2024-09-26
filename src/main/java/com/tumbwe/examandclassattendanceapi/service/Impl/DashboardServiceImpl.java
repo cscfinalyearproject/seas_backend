@@ -1,12 +1,12 @@
 package com.tumbwe.examandclassattendanceapi.service.Impl;
 
 import com.tumbwe.examandclassattendanceapi.dto.AttendanceRecordDto;
+import com.tumbwe.examandclassattendanceapi.dto.AttendanceSessionDto;
 import com.tumbwe.examandclassattendanceapi.model.AttendanceRecord;
+import com.tumbwe.examandclassattendanceapi.model.AttendanceSession;
+import com.tumbwe.examandclassattendanceapi.model.Course;
 import com.tumbwe.examandclassattendanceapi.model.Student;
-import com.tumbwe.examandclassattendanceapi.repository.AttendanceRecordRepository;
-import com.tumbwe.examandclassattendanceapi.repository.CourseRepository;
-import com.tumbwe.examandclassattendanceapi.repository.DepartmentRepository;
-import com.tumbwe.examandclassattendanceapi.repository.StudentRepository;
+import com.tumbwe.examandclassattendanceapi.repository.*;
 import com.tumbwe.examandclassattendanceapi.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +27,7 @@ public class DashboardServiceImpl implements DashboardService {
     private final DepartmentRepository departmentRepository;
     private final CourseRepository courseRepository;
     private final AttendanceRecordRepository attendanceRecordRepository;
+    private final AttendanceSessionRepository attendanceSessionRepository;
 
     @Override
     public Set<Student> getStudentsByDepartment(Long id) {
@@ -72,16 +73,7 @@ public class DashboardServiceImpl implements DashboardService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
-        return rawRecords.stream()
-                .map(record -> new AttendanceRecordDto(
-                        ((Number) record[0]).longValue(), // attendanceCount
-                        (String) record[1],               // studentId
-                        (String) record[2],               // courseCode
-                        ((Date) record[3]).toLocalDate().format(formatter),               // timeStamp
-                        (String) record[4],               // attendanceType
-                        (String) record[5]                // fullName
-                ))
-                .toList();
+        return new ArrayList<>();
     }
 
     @Override
@@ -90,32 +82,63 @@ public class DashboardServiceImpl implements DashboardService {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        return rawRecords.stream()
-                .map(record -> new AttendanceRecordDto(
-                        ((Number) 0).longValue(), // attendanceCount
-                        (String) record[4],               // studentId
-                        (String) record[3],               // courseCode
-                        ((Date) record[2]).toLocalDate().format(formatter),               // timeStamp
-                        (String) record[1],               // attendanceType
-                        (String) record[5]                // fullName
-                ))
-                .toList();
+        return new ArrayList<>();
     }
 
     @Override
     public List<AttendanceRecordDto> getAbsentStudents(String courseCode) {
         List<Object[]> rawRecords = attendanceRecordRepository.getAbsentStudents(courseCode);
 
-        return rawRecords.stream()
-                .map(record -> new AttendanceRecordDto(
-                        ((Number) 0).longValue(), // attendanceCount
-                        (String) record[1],               // studentId
-                        (String) null,               // courseCode
-                        (String) null,               // timeStamp
-                        (String) null,               // attendanceType
-                        (String) record[0]                // fullName
-                ))
-                .toList();
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<AttendanceSessionDto> getSessions(String courseCode) {
+        Course course = courseRepository.findByCourseCode(courseCode).orElseThrow(null);
+
+        if(course == null) {
+            return new ArrayList<>();
+        }
+
+        var sessions = attendanceSessionRepository.findAllByCourse(course);
+
+        List<AttendanceSessionDto> attendanceSessions = new ArrayList<>();
+
+        for (var session : sessions) {
+            AttendanceSessionDto attendanceSession = new AttendanceSessionDto();
+            attendanceSession.setSessionStatus(session.getSessionStatus().toString());
+            attendanceSession.setAttendanceType(session.getAttendanceType().toString());
+            attendanceSession.setCourseCode(session.getCourse().getCourseCode());
+            attendanceSession.setTimeStamp(session.getTimeStamp().toString());
+            attendanceSession.setAttendanceSessionId(session.getAttendanceSessionId());
+
+            attendanceSessions.add(attendanceSession);
+        }
+
+        return attendanceSessions;
+    }
+
+    @Override
+    public List<AttendanceRecordDto> getRecords(Long id) {
+        AttendanceSession session = attendanceSessionRepository.findById(id).orElse(null);
+
+        if (session == null){
+            return new ArrayList<>();
+        }
+        var attendanceRecords = attendanceRecordRepository.getAttendanceRecordBySession(session);
+        List<AttendanceRecordDto> attendanceRecordDtos = new ArrayList<>();
+
+        for (var attendanceRecord : attendanceRecords) {
+            AttendanceRecordDto attendanceRecordDto = new AttendanceRecordDto();
+            attendanceRecordDto.setAttendanceType(attendanceRecord.getAttendanceType().toString());
+            attendanceRecordDto.setStudentId(attendanceRecord.getStudent().getStudentId());
+            studentRepository.findById(attendanceRecord.getStudent().getStudentId()).ifPresent(student -> attendanceRecordDto.setFullName(student.getFullName()));
+            attendanceRecordDto.setCourseCode(attendanceRecord.getCourse().getCourseCode());
+            attendanceRecordDto.setTimeStamp(attendanceRecord.getTimeStamp().toString());
+
+            attendanceRecordDtos.add(attendanceRecordDto);
+        }
+        return attendanceRecordDtos;
     }
 
 }

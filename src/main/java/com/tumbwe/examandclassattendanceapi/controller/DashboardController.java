@@ -3,6 +3,7 @@ package com.tumbwe.examandclassattendanceapi.controller;
 
 import com.tumbwe.examandclassattendanceapi.service.DashboardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,6 +73,24 @@ public class DashboardController {
     public ResponseEntity<?> findAbsent(@RequestParam("courseCode") String courseCode) {
         try {
             return ResponseEntity.ok(dashboardService.getAbsentStudents(courseCode));
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping(path = "/getRecords/{sessionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getRecords(@PathVariable Long sessionId) {
+        try {
+            return ResponseEntity.ok(dashboardService.getRecords(sessionId));
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping(path = "/getSessions", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getSessions(@RequestParam("courseCode") String courseCode) {
+        try {
+            return ResponseEntity.ok(dashboardService.getSessions(courseCode));
         }catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }

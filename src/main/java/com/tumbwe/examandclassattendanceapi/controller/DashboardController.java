@@ -105,4 +105,71 @@ public class DashboardController {
         }
     }
 
+    @GetMapping(path = "/getStudentAttendance/{studentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getStudentAttendance(@PathVariable String studentId) {
+        try {
+            return ResponseEntity.ok(dashboardService.getStudentAttendanceById(studentId));
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping(path = "/notifications", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getNotifications() {
+        try {
+            return ResponseEntity.ok(dashboardService.getLowAttendanceNotifications());
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping(path = "/statistics/course", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getStatistics() {
+        try {
+            return ResponseEntity.ok(dashboardService.getCourseStatistics());
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping(path = "/filters/years", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getFilterYear() {
+        try {
+            return ResponseEntity.ok(dashboardService.getDistinctYears());
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping(path = "/statistics/attendance-trends", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getCourseAttendance() {
+        try {
+            return ResponseEntity.ok(dashboardService.getCourseAttendance());
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping(path = "/statistics/attendance-comparison", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> attendanceComparison() {
+        try {
+            return ResponseEntity.ok(dashboardService.getSessionAttendance());
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping(path = "/filters/courses", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> filterCourses() {
+        try {
+            return ResponseEntity.ok(dashboardService.getDistinctCourses());
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+
+
+
+
 }

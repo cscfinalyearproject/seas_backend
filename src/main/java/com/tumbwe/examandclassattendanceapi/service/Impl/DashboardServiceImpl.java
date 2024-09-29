@@ -1,18 +1,21 @@
 package com.tumbwe.examandclassattendanceapi.service.Impl;
 
-import com.tumbwe.examandclassattendanceapi.dto.AttendanceRecordDto;
-import com.tumbwe.examandclassattendanceapi.dto.AttendanceSessionDto;
-import com.tumbwe.examandclassattendanceapi.dto.CourseResponseDto;
+import com.tumbwe.examandclassattendanceapi.dto.*;
 import com.tumbwe.examandclassattendanceapi.model.AttendanceRecord;
 import com.tumbwe.examandclassattendanceapi.model.AttendanceSession;
 import com.tumbwe.examandclassattendanceapi.model.Course;
 import com.tumbwe.examandclassattendanceapi.model.Student;
 import com.tumbwe.examandclassattendanceapi.repository.*;
+import com.tumbwe.examandclassattendanceapi.response.AttendanceRecordDTO;
 import com.tumbwe.examandclassattendanceapi.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.security.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -161,6 +164,134 @@ public class DashboardServiceImpl implements DashboardService {
         }
 
         return courseResponseDtos;
+    }
+
+    @Override
+    public StudentAttendanceDto getStudentAttendanceById(String id) {
+            List<Object[]> results = attendanceRecordRepository.findAttendanceByStudentId(id);
+            List<AttendanceResponseDto> attendanceRecords = new ArrayList<>();
+
+            for (Object[] result : results) {
+                String attendanceType = (String) result[1];
+                String courseCode = (String) result[2];
+                String sessionTime = result[3].toString();
+                String status = (String) result[4];
+
+                AttendanceResponseDto attendanceRecord = new AttendanceResponseDto(attendanceType, courseCode, sessionTime, status);
+                attendanceRecords.add(attendanceRecord);
+            }
+        return new StudentAttendanceDto(id, attendanceRecords);
+    }
+
+    @Override
+    public List<NotificationDto> getLowAttendanceNotifications() {
+        List<Object[]> results = attendanceRecordRepository.findLowAttendanceStudents();
+        List<NotificationDto> notifications = new ArrayList<>();
+
+        for (Object[] result : results) {
+            String studentId = (String) result[0];
+            String fullName = (String) result[1];
+            String courseCode = (String) result[2];
+            String courseName = (String) result[3];
+
+            // Cast to BigDecimal and convert to Double
+            BigDecimal attendancePercentageDecimal = (BigDecimal) result[4];
+            double attendancePercentage = attendancePercentageDecimal.doubleValue();
+
+            NotificationDto notification = new NotificationDto(studentId, fullName, courseCode, courseName, attendancePercentage);
+            notifications.add(notification);
+        }
+
+        return notifications;
+    }
+
+    @Override
+    public List<CourseStatisticsDto> getCourseStatistics() {
+        List<Object[]> results = attendanceRecordRepository.findCourseStatistics();
+        List<CourseStatisticsDto> statistics = new ArrayList<>();
+
+        for (Object[] result : results) {
+            String courseCode = (String) result[0];
+            String courseName = (String) result[1];
+
+            int totalEnrolledStudents = ((Long) result[2]).intValue();
+
+            // Ensure correct casting for BigDecimal
+            double averageAttendancePercentage = ((BigDecimal) result[3]).doubleValue();
+
+            // Cast to Long for total classes held
+            int totalClassesHeld = ((Long) result[4]).intValue();
+
+            CourseStatisticsDto dto = new CourseStatisticsDto(courseCode, courseName, totalEnrolledStudents, averageAttendancePercentage, totalClassesHeld);
+            statistics.add(dto);
+        }
+        return statistics;
+    }
+
+
+    public List<YearDto> getDistinctYears() {
+        List<Integer> results = attendanceRecordRepository.findDistinctYears();
+        List<YearDto> years = new ArrayList<>();
+
+        for (Integer year : results) {
+            years.add(new YearDto(year));
+        }
+        return years;
+    }
+
+    @Override
+    public List<CourseAttendanceDto> getCourseAttendance() {
+        List<Object[]> results = attendanceRecordRepository.findCourseAttendance();
+        List<CourseAttendanceDto> attendanceList = new ArrayList<>();
+
+        for (Object[] result : results) {
+            String courseCode = (String) result[0];
+            String courseName = (String) result[1];
+
+            // Cast the result to Long instead of BigInteger
+            int presentStudents = ((Long) result[2]).intValue();
+            int absentStudents = ((Long) result[3]).intValue();
+
+            CourseAttendanceDto dto = new CourseAttendanceDto(courseCode, courseName, presentStudents, absentStudents);
+            attendanceList.add(dto);
+        }
+        return attendanceList;
+    }
+
+
+    @Override
+    public List<SessionAttendanceDto> getSessionAttendance() {
+        List<Object[]> results = attendanceRecordRepository.findSessionAttendance();
+        List<SessionAttendanceDto> sessionAttendanceList = new ArrayList<>();
+
+        for (Object[] result : results) {
+            String sessionDate = result[0].toString(); // Convert timestamp to string
+            String courseCode = (String) result[1];
+            String courseName = (String) result[2];
+
+            // Cast to Long instead of BigInteger
+            int presentStudents = ((Long) result[3]).intValue();
+            int absentStudents = ((Long) result[4]).intValue();
+
+            SessionAttendanceDto dto = new SessionAttendanceDto(sessionDate, courseCode, courseName, presentStudents, absentStudents);
+            sessionAttendanceList.add(dto);
+        }
+        return sessionAttendanceList;
+    }
+
+
+    public List<DashboardCourseDto> getDistinctCourses() {
+        List<Object[]> results = courseRepository.findDistinctCourses();
+        List<DashboardCourseDto> courses = new ArrayList<>();
+
+        for (Object[] result : results) {
+            String courseCode = (String) result[0];
+            String courseName = (String) result[1];
+
+            DashboardCourseDto dto = new DashboardCourseDto(courseCode, courseName);
+            courses.add(dto);
+        }
+        return courses;
     }
 
 }

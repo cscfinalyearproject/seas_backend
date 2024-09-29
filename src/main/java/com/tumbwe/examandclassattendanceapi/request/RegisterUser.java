@@ -11,7 +11,7 @@ public class RegisterUser {
 
     private String phoneNumber;
 
-    private String biography;
+    private String department;
 
     private String email;
 

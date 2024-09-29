@@ -53,4 +53,67 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
 
     List<AttendanceRecord> getAttendanceRecordBySession(AttendanceSession session);
 
+
+    @Query(value = "SELECT s.student_id AS studentId, " +
+            "ats.attendance_type AS attendanceType, " +
+            "c.course_code AS courseCode, " +
+            "ats.time_stamp AS sessionTime, " +
+            "IF(ar.time_stamp IS NULL, 'Absent', 'Present') AS status " +
+            "FROM attendance_sessions ats " +
+            "JOIN courses c ON ats.course_code = c.course_code " +
+            "JOIN course_student cs ON cs.course_code = c.course_code " +
+            "JOIN students s ON cs.student_id = s.student_id " +
+            "LEFT JOIN attendance_record ar ON ar.student_id = s.student_id " +
+            "AND ar.course_code = ats.course_code " +
+            "AND ar.time_stamp = ats.time_stamp " +
+            "WHERE s.student_id = :studentId",
+            nativeQuery = true)
+    List<Object[]> findAttendanceByStudentId(String studentId);
+
+
+        @Query(value = "SELECT s.student_id, s.full_name, c.course_code, c.course_name, " +
+                "ROUND(COUNT(CASE WHEN ar.time_stamp IS NOT NULL THEN 1 END) * 100.0 / COUNT(ats.time_stamp), 2) AS attendance_percentage " +
+                "FROM students s " +
+                "JOIN course_student cs ON cs.student_id = s.student_id " +
+                "JOIN courses c ON cs.course_code = c.course_code " +
+                "JOIN attendance_sessions ats ON ats.course_code = c.course_code " +
+                "LEFT JOIN attendance_record ar ON ar.course_code = ats.course_code AND ar.student_id = s.student_id " +
+                "GROUP BY s.student_id, c.course_code, c.course_name " +
+                "HAVING attendance_percentage < 80 " +
+                "AND COUNT(ats.time_stamp) >= 0.7 * (SELECT COUNT(*) FROM attendance_sessions ats2 WHERE ats2.course_code = c.course_code);", nativeQuery = true)
+        List<Object[]> findLowAttendanceStudents();
+
+    @Query(value = "SELECT c.course_code, c.course_name, COUNT(cs.student_id) AS total_enrolled_students, " +
+            "AVG(IF(ar.time_stamp IS NOT NULL, 1, 0)) * 100 AS average_attendance_percentage, " +
+            "COUNT(DISTINCT ats.time_stamp) AS total_classes_held " +
+            "FROM courses c " +
+            "JOIN course_student cs ON cs.course_code = c.course_code " +
+            "LEFT JOIN attendance_sessions ats ON ats.course_code = c.course_code " +
+            "LEFT JOIN attendance_record ar ON ar.course_code = ats.course_code AND ar.student_id = cs.student_id " +
+            "GROUP BY c.course_code, c.course_name", nativeQuery = true)
+    List<Object[]> findCourseStatistics();
+
+    @Query(value = "SELECT DISTINCT YEAR(ats.time_stamp) AS year FROM attendance_sessions ats ORDER BY year DESC", nativeQuery = true)
+    List<Integer> findDistinctYears();
+
+    @Query(value = "SELECT c.course_code, c.course_name, " +
+            "COUNT(CASE WHEN ar.time_stamp IS NOT NULL THEN 1 END) AS present_students, " +
+            "COUNT(CASE WHEN ar.time_stamp IS NULL THEN 1 END) AS absent_students " +
+            "FROM courses c " +
+            "JOIN course_student cs ON cs.course_code = c.course_code " +
+            "LEFT JOIN attendance_record ar ON ar.course_code = c.course_code AND ar.student_id = cs.student_id " +
+            "GROUP BY c.course_code, c.course_name", nativeQuery = true)
+    List<Object[]> findCourseAttendance();
+
+    @Query(value = "SELECT ats.time_stamp AS session_date, c.course_code, c.course_name, " +
+            "COUNT(CASE WHEN ar.time_stamp IS NOT NULL THEN 1 END) AS present_students, " +
+            "COUNT(CASE WHEN ar.time_stamp IS NULL THEN 1 END) AS absent_students " +
+            "FROM attendance_sessions ats " +
+            "JOIN courses c ON c.course_code = ats.course_code " +
+            "LEFT JOIN attendance_record ar ON ar.course_code = ats.course_code AND ar.time_stamp = ats.time_stamp " +
+            "GROUP BY ats.time_stamp, c.course_code, c.course_name " +
+            "ORDER BY ats.time_stamp", nativeQuery = true)
+    List<Object[]> findSessionAttendance();
+
+
 }

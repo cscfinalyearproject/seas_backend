@@ -1,9 +1,6 @@
 package com.tumbwe.examandclassattendanceapi.service;
 
-import com.tumbwe.examandclassattendanceapi.dto.AttendanceRecordDto;
-import com.tumbwe.examandclassattendanceapi.dto.AttendanceSessionDto;
-import com.tumbwe.examandclassattendanceapi.dto.CourseDto;
-import com.tumbwe.examandclassattendanceapi.dto.CourseResponseDto;
+import com.tumbwe.examandclassattendanceapi.dto.*;
 import com.tumbwe.examandclassattendanceapi.model.AttendanceRecord;
 import com.tumbwe.examandclassattendanceapi.model.AttendanceSession;
 import com.tumbwe.examandclassattendanceapi.model.Course;
@@ -24,4 +21,11 @@ public interface DashboardService {
     List<AttendanceSessionDto> getSessions(String courseCode);
     List<AttendanceRecordDto> getRecords(Long id);
     List<CourseResponseDto> getCourseByDepartment(Long id);
+    StudentAttendanceDto getStudentAttendanceById(String id);
+    public List<NotificationDto> getLowAttendanceNotifications();
+    public List<CourseStatisticsDto> getCourseStatistics();
+    public List<YearDto> getDistinctYears();
+    public List<CourseAttendanceDto> getCourseAttendance();
+    public List<SessionAttendanceDto> getSessionAttendance();
+    public List<DashboardCourseDto> getDistinctCourses();
 }

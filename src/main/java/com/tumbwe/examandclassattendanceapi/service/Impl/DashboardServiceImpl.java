@@ -184,8 +184,8 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<NotificationDto> getLowAttendanceNotifications() {
-        List<Object[]> results = attendanceRecordRepository.findLowAttendanceStudents();
+    public List<NotificationDto> getLowAttendanceNotifications(Long department) {
+        List<Object[]> results = attendanceRecordRepository.findLowAttendanceStudents(department);
         List<NotificationDto> notifications = new ArrayList<>();
 
         for (Object[] result : results) {
@@ -206,8 +206,8 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<CourseStatisticsDto> getCourseStatistics() {
-        List<Object[]> results = attendanceRecordRepository.findCourseStatistics();
+    public List<CourseStatisticsDto> getCourseStatistics(Long department) {
+        List<Object[]> results = attendanceRecordRepository.findCourseStatistics(department);
         List<CourseStatisticsDto> statistics = new ArrayList<>();
 
         for (Object[] result : results) {
@@ -229,6 +229,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
 
+    @Override
     public List<YearDto> getDistinctYears() {
         List<Integer> results = attendanceRecordRepository.findDistinctYears();
         List<YearDto> years = new ArrayList<>();
@@ -240,8 +241,8 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<CourseAttendanceDto> getCourseAttendance() {
-        List<Object[]> results = attendanceRecordRepository.findCourseAttendance();
+    public List<CourseAttendanceDto> getCourseAttendance(Long department) {
+        List<Object[]> results = attendanceRecordRepository.findCourseAttendance(department);
         List<CourseAttendanceDto> attendanceList = new ArrayList<>();
 
         for (Object[] result : results) {
@@ -260,8 +261,8 @@ public class DashboardServiceImpl implements DashboardService {
 
 
     @Override
-    public List<SessionAttendanceDto> getSessionAttendance() {
-        List<Object[]> results = attendanceRecordRepository.findSessionAttendance();
+    public List<SessionAttendanceDto> getSessionAttendance(Long department) {
+        List<Object[]> results = attendanceRecordRepository.findSessionAttendance(department);
         List<SessionAttendanceDto> sessionAttendanceList = new ArrayList<>();
 
         for (Object[] result : results) {

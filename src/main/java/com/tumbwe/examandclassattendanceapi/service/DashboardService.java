@@ -22,10 +22,10 @@ public interface DashboardService {
     List<AttendanceRecordDto> getRecords(Long id);
     List<CourseResponseDto> getCourseByDepartment(Long id);
     StudentAttendanceDto getStudentAttendanceById(String id);
-    public List<NotificationDto> getLowAttendanceNotifications();
-    public List<CourseStatisticsDto> getCourseStatistics();
+    public List<NotificationDto> getLowAttendanceNotifications(Long department);
+    public List<CourseStatisticsDto> getCourseStatistics(Long department);
     public List<YearDto> getDistinctYears();
-    public List<CourseAttendanceDto> getCourseAttendance();
-    public List<SessionAttendanceDto> getSessionAttendance();
+    public List<CourseAttendanceDto> getCourseAttendance(Long department);
+    public List<SessionAttendanceDto> getSessionAttendance(Long department);
     public List<DashboardCourseDto> getDistinctCourses();
 }

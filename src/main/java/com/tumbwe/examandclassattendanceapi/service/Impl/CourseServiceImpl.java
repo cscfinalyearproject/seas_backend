@@ -35,14 +35,14 @@ public class CourseServiceImpl implements CourseService {
             Department department = departmentRepository.findById(courseDto.getDepartmentId()).orElse(null);
             course.setCourseCode(courseDto.getCourseCode());
             course.setCourseName(courseDto.getCourseName());
-
+            course.setSemester(course.getSemester());
             if(department == null) {
                 throw new ResourceNotFoundException("Department not found");
             }
             course.setDepartment(department);
             try {
                 Course savedCourse = courseRepository.save(course);
-                return new CourseDto(savedCourse.getCourseName(), courseDto.getCourseCode(),courseDto.getDepartmentId());
+                return new CourseDto(savedCourse.getCourseName(), courseDto.getCourseCode(),courseDto.getDepartmentId(),courseDto.getSemester());
             }
             catch (Exception e){
                 throw new InternalServerException(e.getMessage());
@@ -61,7 +61,7 @@ public class CourseServiceImpl implements CourseService {
         List<Course> courses = courseRepository.findAll();
         if (!courses.isEmpty())
         return courses.stream().map(course ->
-                new CourseDto(course.getCourseName(), course.getCourseCode(),course.getDepartment().getId())).collect(Collectors.toList());
+                new CourseDto(course.getCourseName(), course.getCourseCode(),course.getDepartment().getId(),course.getSemester())).collect(Collectors.toList());
 
         else
             throw new ResourceNotFoundException("Courses not found");

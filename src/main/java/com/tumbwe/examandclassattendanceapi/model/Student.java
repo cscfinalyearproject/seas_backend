@@ -17,5 +17,6 @@ public class Student {
     private String studentId;
     private String fingerprintTemplate;
     private String fullName;
+    private String intake;
 
 }

@@ -22,10 +22,9 @@ public class AttendanceRecord {
     @JoinColumn(name = "course_code")
     private Course course;
     private LocalDate timeStamp;
-    @Enumerated(value = EnumType.STRING)
-    private AttendanceType attendanceType;
+    private String attendanceType;
 
-    public AttendanceRecord(Student student, Course course, AttendanceType attendanceType) {
+    public AttendanceRecord(Student student, Course course, String attendanceType) {
         this.student = student;
         this.course = course;
         this.attendanceType = attendanceType;

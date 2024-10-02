@@ -12,9 +12,9 @@ public class AttendanceRecordDTO {
         private  String studentId;
         private String courseCode;
         private LocalDate timestamp;
-        private AttendanceType attendanceType;
+        private String attendanceType;
 
-        public AttendanceRecordDTO(String studentId, String courseCode, AttendanceType attendanceType) {
+        public AttendanceRecordDTO(String studentId, String courseCode, String attendanceType) {
             this.studentId = studentId;
             this.courseCode = courseCode;
             this.timestamp = LocalDate.now();

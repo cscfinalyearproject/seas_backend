@@ -20,14 +20,12 @@ public class AttendanceSession {
     @ManyToOne
     @JoinColumn(name = "course_code")
     private Course course;
-    @Enumerated(EnumType.STRING)
-    private AttendanceType attendanceType;
+    private String attendanceType;
 
-    @Enumerated(EnumType.STRING)
-    private SessionStatus sessionStatus = SessionStatus.open;
+    private String sessionStatus = SessionStatus.open + "";
     private LocalDate timeStamp;
 
-    public AttendanceSession(Course course, AttendanceType attendanceType){
+    public AttendanceSession(Course course, String attendanceType){
         this.course = course;
         this.attendanceType = attendanceType;
         this.timeStamp = LocalDate.now();

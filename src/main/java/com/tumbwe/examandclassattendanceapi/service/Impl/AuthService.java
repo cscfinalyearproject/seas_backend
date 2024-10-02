@@ -3,6 +3,7 @@ package com.tumbwe.examandclassattendanceapi.service.Impl;
 import com.tumbwe.examandclassattendanceapi.config.EmailSender;
 import com.tumbwe.examandclassattendanceapi.model.*;
 import com.tumbwe.examandclassattendanceapi.repository.AccountRepository;
+import com.tumbwe.examandclassattendanceapi.repository.DepartmentRepository;
 import com.tumbwe.examandclassattendanceapi.repository.UserRepository;
 import com.tumbwe.examandclassattendanceapi.repository.VerificationRepository;
 import com.tumbwe.examandclassattendanceapi.request.RegisterUser;
@@ -30,6 +31,7 @@ public class AuthService {
     private final EmailSender emailSender;
     private final VerificationRepository verificationRepository;
     private final VerificationService verificationService;
+    private final DepartmentRepository departmentRepository;
 
     public RegisterResponse register(RegisterUser request){
         User user = new User();
@@ -39,6 +41,12 @@ public class AuthService {
         user.setRole(Role.valueOf(request.getRole()));
         user.setIsVerified(true);
 
+        Department department = departmentRepository.findByName(request.getDepartment());
+
+        if(department == null){
+            throw new RuntimeException("Department is null");
+        }
+        user.setDepartment(department);
         Optional<User> existingUser = userRepository.findByUsername(request.getEmail());
         if (!isValidPassword(request.getPassword())){
             throw new RuntimeException("Password not strong");
@@ -85,9 +93,14 @@ public class AuthService {
 
         if(user.isPresent()){
             String token = jwtService.generateToken(user.get());
-            return new AuthenticationResponse(token);
+            AuthenticationResponse auth = new AuthenticationResponse();
+            auth.setToken(token);
+            if(user.get().getRole() == Role.ADMIN){
+                auth.setDepartmentId(user.get().getDepartment().getId());
+            }
+            return auth;
         }
-        return new AuthenticationResponse("User not found");
+        return null;
     }
 
     //Check if the email is valid
@@ -116,7 +129,9 @@ public class AuthService {
             userRepository.save(user);
             verificationRepository.delete(verification.get());
             String code = jwtService.generateToken(user);
-            return new AuthenticationResponse(code);
+            AuthenticationResponse auth = new AuthenticationResponse();
+            auth.setToken(code);
+            return auth;
         }
         throw  new RuntimeException("Token expired or does not exist");
     }

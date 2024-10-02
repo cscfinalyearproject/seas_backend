@@ -6,4 +6,5 @@ import lombok.Data;
 public class AttendanceSummary {
     private String courseCode;
     private String avgAttendance;
+    private String courseName;
 }

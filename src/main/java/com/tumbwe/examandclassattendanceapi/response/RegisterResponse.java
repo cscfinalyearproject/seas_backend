@@ -8,6 +8,6 @@ import java.util.UUID;
 @Getter
 @Setter
 public class RegisterResponse {
-    private UUID id;
+    private Long id;
     private String name;
 }

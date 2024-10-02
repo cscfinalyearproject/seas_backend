@@ -1,15 +1,17 @@
 package com.tumbwe.examandclassattendanceapi.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CourseDto {
-    private String courseName;
+public class CourseAttendanceDto {
     private String courseCode;
-    private Long departmentId;
-    private Byte semester;
+    private String courseName;
+    private int presentStudents;
+    private int absentStudents;
 }

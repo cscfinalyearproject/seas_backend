@@ -9,7 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
-
     Optional<User> findByUsernameAndIsVerified(String username, Boolean isVerified);
     Optional<User> findByUsername(String username);
 }

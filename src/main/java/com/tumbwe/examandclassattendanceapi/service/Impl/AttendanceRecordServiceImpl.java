@@ -28,7 +28,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     private final AttendanceSessionRepository attendanceSessionRepository;
     @Override
     public Set<AttendanceRecordDTO> addAttendanceRecord(AttendanceSessionOut inOut) {
-        AttendanceSession attendanceSession = attendanceSessionRepository.findById(UUID.fromString(inOut.getSessionId()))
+        AttendanceSession attendanceSession = attendanceSessionRepository.findById(Long.parseLong(inOut.getSessionId()))
                 .orElseThrow(() -> new ResourceNotFoundException("Attendance session not found"));
         if (Objects.equals(attendanceSession.getSessionStatus(), SessionStatus.closed + "")){
             throw new ResourceAlreadyExistsException("Attendance session for Course with Course Code: " +inOut.getSessionId() + " already closed");

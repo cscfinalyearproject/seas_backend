@@ -114,7 +114,7 @@ public class DashboardController {
         }
     }
 
-    @GetMapping(path = "/notifications//{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/notifications/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getNotifications(@PathVariable Long departmentId) {
         try {
             return ResponseEntity.ok(dashboardService.getLowAttendanceNotifications(departmentId));

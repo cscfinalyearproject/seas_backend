@@ -1,11 +1,12 @@
 package com.tumbwe.examandclassattendanceapi.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tumbwe.examandclassattendanceapi.dto.StartSession;
-import com.tumbwe.examandclassattendanceapi.model.AttendanceSessionInOut;
-import com.tumbwe.examandclassattendanceapi.model.AttendanceType;
+import com.tumbwe.examandclassattendanceapi.model.AttendanceSessionOut;
 
 public interface AttendanceSessionService {
-    AttendanceSessionInOut startSession(StartSession in);
 
 
+
+    Object getAttendaceStatuses();
 }

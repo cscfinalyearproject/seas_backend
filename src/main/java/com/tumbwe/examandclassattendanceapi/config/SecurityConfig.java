@@ -33,7 +33,7 @@ public class SecurityConfig {
                         req->req.requestMatchers("/api/v1/auth/**")
                                 .permitAll()
                                 .anyRequest()
-                                .permitAll()
+                                .authenticated()
                 ).userDetailsService(userDetailService)
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

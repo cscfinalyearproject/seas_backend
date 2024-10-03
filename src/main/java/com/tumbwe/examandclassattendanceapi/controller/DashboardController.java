@@ -114,19 +114,19 @@ public class DashboardController {
         }
     }
 
-    @GetMapping(path = "/notifications", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getNotifications() {
+    @GetMapping(path = "/notifications//{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getNotifications(@PathVariable Long departmentId) {
         try {
-            return ResponseEntity.ok(dashboardService.getLowAttendanceNotifications());
+            return ResponseEntity.ok(dashboardService.getLowAttendanceNotifications(departmentId));
         }catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
-    @GetMapping(path = "/statistics/course", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getStatistics() {
+    @GetMapping(path = "/statistics/course/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getStatistics(@PathVariable Long departmentId) {
         try {
-            return ResponseEntity.ok(dashboardService.getCourseStatistics());
+            return ResponseEntity.ok(dashboardService.getCourseStatistics(departmentId));
         }catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
@@ -141,19 +141,19 @@ public class DashboardController {
         }
     }
 
-    @GetMapping(path = "/statistics/attendance-trends", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getCourseAttendance() {
+    @GetMapping(path = "/statistics/attendance-trends/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getCourseAttendance(@PathVariable Long departmentId) {
         try {
-            return ResponseEntity.ok(dashboardService.getCourseAttendance());
+            return ResponseEntity.ok(dashboardService.getCourseAttendance(departmentId));
         }catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
-    @GetMapping(path = "/statistics/attendance-comparison", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> attendanceComparison() {
+    @GetMapping(path = "/statistics/attendance-comparison/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> attendanceComparison(@PathVariable Long departmentId) {
         try {
-            return ResponseEntity.ok(dashboardService.getSessionAttendance());
+            return ResponseEntity.ok(dashboardService.getSessionAttendance(departmentId));
         }catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }

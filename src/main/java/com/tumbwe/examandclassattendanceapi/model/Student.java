@@ -19,5 +19,6 @@ public class Student {
     @Column(columnDefinition = "LONGTEXT")  // For MySQL, use LONGTEXT for large text
     private String fingerprintTemplate;
     private String fullName;
+    private String intake;
 
 }

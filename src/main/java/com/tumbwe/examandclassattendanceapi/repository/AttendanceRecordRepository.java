@@ -78,10 +78,11 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
                 "JOIN courses c ON cs.course_code = c.course_code " +
                 "JOIN attendance_sessions ats ON ats.course_code = c.course_code " +
                 "LEFT JOIN attendance_record ar ON ar.course_code = ats.course_code AND ar.student_id = s.student_id " +
+                "WHERE c.department_id = :department " +
                 "GROUP BY s.student_id, c.course_code, c.course_name " +
                 "HAVING attendance_percentage < 80 " +
                 "AND COUNT(ats.time_stamp) >= 0.7 * (SELECT COUNT(*) FROM attendance_sessions ats2 WHERE ats2.course_code = c.course_code);", nativeQuery = true)
-        List<Object[]> findLowAttendanceStudents();
+        List<Object[]> findLowAttendanceStudents(Long department);
 
     @Query(value = "SELECT c.course_code, c.course_name, COUNT(cs.student_id) AS total_enrolled_students, " +
             "AVG(IF(ar.time_stamp IS NOT NULL, 1, 0)) * 100 AS average_attendance_percentage, " +
@@ -90,8 +91,9 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
             "JOIN course_student cs ON cs.course_code = c.course_code " +
             "LEFT JOIN attendance_sessions ats ON ats.course_code = c.course_code " +
             "LEFT JOIN attendance_record ar ON ar.course_code = ats.course_code AND ar.student_id = cs.student_id " +
+            "WHERE c.department_id = :department " +
             "GROUP BY c.course_code, c.course_name", nativeQuery = true)
-    List<Object[]> findCourseStatistics();
+    List<Object[]> findCourseStatistics(Long department);
 
     @Query(value = "SELECT DISTINCT YEAR(ats.time_stamp) AS year FROM attendance_sessions ats ORDER BY year DESC", nativeQuery = true)
     List<Integer> findDistinctYears();
@@ -102,8 +104,9 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
             "FROM courses c " +
             "JOIN course_student cs ON cs.course_code = c.course_code " +
             "LEFT JOIN attendance_record ar ON ar.course_code = c.course_code AND ar.student_id = cs.student_id " +
+            "WHERE c.department_id = :department " +
             "GROUP BY c.course_code, c.course_name", nativeQuery = true)
-    List<Object[]> findCourseAttendance();
+    List<Object[]> findCourseAttendance(Long department);
 
     @Query(value = "SELECT ats.time_stamp AS session_date, c.course_code, c.course_name, " +
             "COUNT(CASE WHEN ar.time_stamp IS NOT NULL THEN 1 END) AS present_students, " +
@@ -111,9 +114,10 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
             "FROM attendance_sessions ats " +
             "JOIN courses c ON c.course_code = ats.course_code " +
             "LEFT JOIN attendance_record ar ON ar.course_code = ats.course_code AND ar.time_stamp = ats.time_stamp " +
+            "WHERE c.department_id = :department " +
             "GROUP BY ats.time_stamp, c.course_code, c.course_name " +
             "ORDER BY ats.time_stamp", nativeQuery = true)
-    List<Object[]> findSessionAttendance();
+    List<Object[]> findSessionAttendance(Long department);
 
 
 }

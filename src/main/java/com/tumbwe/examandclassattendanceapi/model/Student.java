@@ -18,5 +18,4 @@ public class Student {
     private String fingerprintTemplate;
     private String fullName;
     private String intake;
-
 }

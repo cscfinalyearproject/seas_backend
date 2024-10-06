@@ -10,7 +10,6 @@ import lombok.Data;
 public class StudentDto {
     @NotBlank(message = "Student ID is required")
     private String studentId;
-
     private String fingerprintTemplate;
     private String fullname;
     private String message;

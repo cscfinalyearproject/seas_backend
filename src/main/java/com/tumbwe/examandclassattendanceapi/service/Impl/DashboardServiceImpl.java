@@ -1,15 +1,20 @@
 package com.tumbwe.examandclassattendanceapi.service.Impl;
 
 import com.tumbwe.examandclassattendanceapi.dto.*;
-import com.tumbwe.examandclassattendanceapi.model.AttendanceRecord;
-import com.tumbwe.examandclassattendanceapi.model.AttendanceSession;
-import com.tumbwe.examandclassattendanceapi.model.Course;
-import com.tumbwe.examandclassattendanceapi.model.Student;
+import com.tumbwe.examandclassattendanceapi.model.*;
 import com.tumbwe.examandclassattendanceapi.repository.*;
 import com.tumbwe.examandclassattendanceapi.response.AttendanceRecordDTO;
 import com.tumbwe.examandclassattendanceapi.service.DashboardService;
+import com.tumbwe.examandclassattendanceapi.service.EnrollmentService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import java.math.BigDecimal;
@@ -17,10 +22,7 @@ import java.math.BigInteger;
 import java.security.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
@@ -32,6 +34,9 @@ public class DashboardServiceImpl implements DashboardService {
     private final CourseRepository courseRepository;
     private final AttendanceRecordRepository attendanceRecordRepository;
     private final AttendanceSessionRepository attendanceSessionRepository;
+    private final EnrollmentService enrollmentService;
+    private final SchoolRepository schoolRepository;
+
 
     @Override
     public Set<Student> getStudentsByDepartment(Long id) {
@@ -293,6 +298,124 @@ public class DashboardServiceImpl implements DashboardService {
             courses.add(dto);
         }
         return courses;
+    }
+
+    @Transactional
+    @Override
+    public List<String> saveStudent(MultipartFile file) throws Exception{
+        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+
+            int numberOfSheets = workbook.getNumberOfSheets();
+            List<String> savedStudents = new ArrayList<>();
+            // Iterate through each sheet in the workbook
+            for (int i = 0; i < numberOfSheets; i++) {
+                Sheet sheet = workbook.getSheetAt(i);
+                String sheetName = sheet.getSheetName();
+                System.out.println("Processing sheet: " + sheetName);
+
+                // Iterate through each row in the current sheet
+                for (Row row : sheet) {
+                    if (row.getRowNum() == 0) {
+                        continue; // Skip header row
+                    }
+
+                    String studentId = getCellValueAsString(row.getCell(0));
+                    String fullName = getCellValueAsString(row.getCell(1));
+                    String intake = getCellValueAsString(row.getCell(2));
+                    Student student = new Student();
+                    student.setStudentId(studentId);
+                    student.setIntake(intake);
+                    student.setFullName(fullName);
+
+                    var saved = studentRepository.save(student);
+
+
+                    if(!saved.equals(student)) {
+                        for (int j = 3; j < row.getLastCellNum(); j++) {
+                            String courseCode = getCellValueAsString(row.getCell(j)).trim(); // Course Code
+                            if (!courseCode.isEmpty()) {
+                                EnrollmentDto enrollmentDto = new EnrollmentDto();
+                                enrollmentDto.setStudentId(studentId);
+                                enrollmentDto.setCourseCode(courseCode);
+                                enrollmentService.addStudentToCourse(enrollmentDto);
+                            }
+                        }
+                        savedStudents.add(studentId);
+                    }
+                }
+            }
+        return savedStudents;
+    }
+
+    @Override
+    public List<String> saveCourse(MultipartFile file) throws Exception {
+        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+
+        int numberOfSheets = workbook.getNumberOfSheets();
+        List<String> savedStudents = new ArrayList<>();
+        // Iterate through each sheet in the workbook
+        for (int i = 0; i < numberOfSheets; i++) {
+            Sheet sheet = workbook.getSheetAt(i);
+            String sheetName = sheet.getSheetName();
+            System.out.println("Processing sheet: " + sheetName);
+
+            // Iterate through each row in the current sheet
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0) {
+                    continue; // Skip header row
+                }
+
+                String courseName = getCellValueAsString(row.getCell(0));
+                String courseCode = getCellValueAsString(row.getCell(1));
+                String semester = getCellValueAsString(row.getCell(2));
+                String departmentName = getCellValueAsString(row.getCell(3));
+                String schoolName = Objects.requireNonNull(file.getOriginalFilename()).substring(0, file.getOriginalFilename().lastIndexOf('.'));
+                Course course = new Course();
+                course.setCourseName(courseName);
+                course.setCourseCode(courseCode);
+                course.setSemester(Byte.parseByte(semester));
+                Department department = departmentRepository.findByName(departmentName);
+                School school = schoolRepository.findByName(schoolName);
+
+                if(school == null){
+                    School school1 = new School();
+                    school1.setName(schoolName);
+                    school = schoolRepository.save(school1);
+                }
+                if (department == null) {
+                    Department newDepartment = new Department();
+                    newDepartment.setName(departmentName);
+                    newDepartment.setSchool(school);
+                    departmentRepository.save(newDepartment);
+                    department = newDepartment;
+                }
+
+
+
+                course.setDepartment(department);
+                var saved = courseRepository.save(course);
+                if(!saved.equals(course)) {
+                    savedStudents.add(courseCode);
+                }
+            }
+        }
+        return savedStudents;
+    }
+
+    private String getCellValueAsString(org.apache.poi.ss.usermodel.Cell cell) {
+        if (cell == null) {
+            return ""; // If the cell is empty, return an empty string
+        }
+
+        CellType cellType = cell.getCellType();
+
+        return switch (cellType) {
+            case STRING -> cell.getStringCellValue();
+            case NUMERIC -> String.valueOf((int) cell.getNumericCellValue()); // Handle numeric values
+            case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
+            case FORMULA -> cell.getCellFormula();
+            default -> ""; // Default to empty string for other types
+        };
     }
 
 }

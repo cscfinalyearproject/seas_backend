@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/dashboard")
@@ -110,6 +111,9 @@ public class DashboardController {
         try {
             return ResponseEntity.ok(dashboardService.getStudentAttendanceById(studentId));
         }catch (Exception e) {
+
+            String name = "hfhjfd";
+
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -169,7 +173,23 @@ public class DashboardController {
     }
 
 
+    @PostMapping(path = "/import/students", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> importStudents(@RequestParam("file") MultipartFile file) {
+        try {
+            return ResponseEntity.ok(dashboardService.saveStudent(file));
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
 
+    @PostMapping(path = "/import/courses", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> importCourses(@RequestParam("file") MultipartFile file) {
+        try {
+            return ResponseEntity.ok(dashboardService.saveCourse(file));
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
 
 
 }

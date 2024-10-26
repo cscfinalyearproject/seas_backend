@@ -15,5 +15,4 @@ public class AttendanceSessionOut {
     private String sessionId;
     private Set<Student> students;
 
-
 }

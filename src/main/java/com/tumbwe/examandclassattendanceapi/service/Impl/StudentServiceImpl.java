@@ -11,14 +11,10 @@ import com.tumbwe.examandclassattendanceapi.repository.AttendanceRecordRepositor
 import com.tumbwe.examandclassattendanceapi.repository.CourseRepository;
 import com.tumbwe.examandclassattendanceapi.repository.DepartmentRepository;
 import com.tumbwe.examandclassattendanceapi.repository.StudentRepository;
-import com.tumbwe.examandclassattendanceapi.response.AttendanceRecordDTO;
 import com.tumbwe.examandclassattendanceapi.service.StudentService;
 import lombok.RequiredArgsConstructor;
-<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.dao.DataIntegrityViolationException;
-=======
->>>>>>> origin/main
+
 import org.springframework.stereotype.Service;
 
 import java.util.*;

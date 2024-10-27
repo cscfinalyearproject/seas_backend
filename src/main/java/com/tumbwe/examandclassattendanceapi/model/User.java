@@ -18,9 +18,9 @@ import java.util.UUID;
 
 public class User implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private UUID id;
+    private Long id;
 
     @Column(name = "username", unique = true)
     private String username;
@@ -30,6 +30,10 @@ public class User implements UserDetails {
 
     @Column(name = "is_verified")
     private Boolean isVerified;
+
+    @ManyToOne
+    @JoinColumn(name = "department_id", referencedColumnName = "id")
+    private Department department;
 
     @Enumerated(value = EnumType.STRING)
     Role role;

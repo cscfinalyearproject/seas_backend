@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class CourseDto {
     private String courseName;
     private String courseCode;
-
+    private Long departmentId;
+    private Byte semester;
 }

@@ -1,5 +1,7 @@
 package com.tumbwe.examandclassattendanceapi.service.Impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tumbwe.examandclassattendanceapi.dto.StartSession;
 import com.tumbwe.examandclassattendanceapi.exception.ResourceNotFoundException;
 import com.tumbwe.examandclassattendanceapi.model.*;
@@ -7,9 +9,10 @@ import com.tumbwe.examandclassattendanceapi.repository.AttendanceSessionReposito
 import com.tumbwe.examandclassattendanceapi.repository.CourseRepository;
 import com.tumbwe.examandclassattendanceapi.service.AttendanceSessionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,23 +22,15 @@ public class AttendanceSessionServiceImpl implements AttendanceSessionService {
 
     private final AttendanceSessionRepository attendanceSessionRepository;
     private final CourseRepository courseRepository;
+    private final SimpMessagingTemplate messagingTemplate;
+
+
+
+
     @Override
-    public AttendanceSessionInOut startSession(StartSession in) {
-        Course course = courseRepository.findByCourseCode(in.getCourseCode()).orElseThrow(() -> new ResourceNotFoundException("Course not found exception"));
-        AttendanceSession attendanceSession = new AttendanceSession(course, in.getType());
-        attendanceSessionRepository.save(attendanceSession);
-        in.setSessionId(attendanceSession.getAttendanceSessionId());
-
-
-        Set<Student> students = courseRepository.findStudentsByCourseCode(course.getCourseCode());
-        if (!students.isEmpty()){
-            return new AttendanceSessionInOut(in, students);
-        }
-        else {
-            throw new ResourceNotFoundException("No Students enrolled to the course");
-        }
-
-        }
+    public Object getAttendaceStatuses() {
+        return Arrays.stream(AttendanceType.values()).map(attendanceType -> attendanceType + "").collect(Collectors.toList());
+    }
 
 
 }

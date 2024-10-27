@@ -21,6 +21,12 @@ public class Course {
             inverseJoinColumns = @JoinColumn(name = "student_id"))
     private Set<Student> enrolledStudents = new HashSet<>();
 
+    @ManyToOne
+    @JoinColumn(name = "department_id", referencedColumnName = "id")
+    private Department department;
+
+    private Byte semester;
+
     public Course(String courseName, String courseCode) {
     }
 }

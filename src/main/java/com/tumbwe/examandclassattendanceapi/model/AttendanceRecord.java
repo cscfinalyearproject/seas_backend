@@ -12,8 +12,9 @@ import java.util.UUID;
 @NoArgsConstructor
 public class AttendanceRecord {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID attendanceId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long attendanceId;
+
     @ManyToOne
     @JoinColumn(name = "student_id")
     private Student student;
@@ -21,11 +22,15 @@ public class AttendanceRecord {
     @ManyToOne
     @JoinColumn(name = "course_code")
     private Course course;
-    private LocalDate timeStamp;
-    @Enumerated(value = EnumType.STRING)
-    private AttendanceType attendanceType;
 
-    public AttendanceRecord(Student student, Course course, AttendanceType attendanceType) {
+    @ManyToOne
+    @JoinColumn(name = "session")
+    private AttendanceSession session;
+
+    private LocalDate timeStamp;
+    private String attendanceType;
+
+    public AttendanceRecord(Student student, Course course, String attendanceType) {
         this.student = student;
         this.course = course;
         this.attendanceType = attendanceType;

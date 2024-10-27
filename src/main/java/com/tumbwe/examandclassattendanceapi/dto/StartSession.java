@@ -1,15 +1,17 @@
 package com.tumbwe.examandclassattendanceapi.dto;
 
-import com.tumbwe.examandclassattendanceapi.model.AttendanceType;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-import java.util.UUID;
-
 @Data
+@Valid
 public class StartSession {
 
-    private UUID sessionId;
-    private AttendanceType type;
+    @NotBlank(message = "attendance type is required")
+    private String type;
+    @NotBlank(message = "Course Code is required")
     private String courseCode;
-
+    @NotBlank(message = "ESP32 Identifier should be specified")
+    private String deviceId;
 }

@@ -22,7 +22,7 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public List<Student> downloadStudents(String courseCode, String attendanceType) {
         List<Student> eligibleStudent = new ArrayList<>();
-        Set<Student> allStudents = courseRepository.findStudentsByCourseCode(courseCode);
+        List<Student> allStudents = courseRepository.findStudentsByCourse(courseCode);
         for(Student student :allStudents){
             if(checkStudentStatus(student.getStudentId(),courseCode,attendanceType)){
                 eligibleStudent.add(student);

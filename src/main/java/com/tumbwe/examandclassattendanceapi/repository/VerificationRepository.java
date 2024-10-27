@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface VerificationRepository extends JpaRepository<Verification, UUID> {
+public interface VerificationRepository extends JpaRepository<Verification, Long> {
     Optional<Verification> findByOtp(String otp);
     Optional<Verification> findVerificationByUser(User user);
 }

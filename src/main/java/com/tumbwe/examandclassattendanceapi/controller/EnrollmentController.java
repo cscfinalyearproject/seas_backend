@@ -26,7 +26,7 @@ public class EnrollmentController {
     public ResponseEntity<?> addStudentToCourse(@Valid @RequestBody EnrollmentDto enrollmentDto){
         try {
             EnrollmentResponse response = enrollmentService.addStudentToCourse(enrollmentDto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            return ResponseEntity.ok(response);
         }
         catch (Exception e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
@@ -36,7 +36,7 @@ public class EnrollmentController {
     @GetMapping(path = "/all-course-students")
     public ResponseEntity<?> getAllCourseStudents(@RequestParam String courseCode){
         try{
-            return  ResponseEntity.status(HttpStatus.FOUND).body(enrollmentService.getAllCourseStudents(courseCode));
+            return  ResponseEntity.ok(enrollmentService.getAllCourseStudents(courseCode));
         }
         catch (Exception e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());

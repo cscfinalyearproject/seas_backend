@@ -18,7 +18,7 @@ public class CourseController {
     @PostMapping("/add-course")
     public ResponseEntity<?> addCourse(@RequestBody CourseDto courseDto){
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(courseService.addCourse(courseDto));
+            return ResponseEntity.ok(courseService.addCourse(courseDto));
         }
         catch (Exception e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
@@ -37,7 +37,7 @@ public class CourseController {
 
     @GetMapping(path = "/is-available-course")
     public ResponseEntity<?> isCourseAvailable(@RequestParam String courseCode){
-        try { return  ResponseEntity.status(HttpStatus.FOUND).body(courseService.existsByCourseCode(courseCode));}
+        try { return  ResponseEntity.ok(courseService.existsByCourseCode(courseCode));}
         catch (Exception e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }

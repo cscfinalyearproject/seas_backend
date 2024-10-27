@@ -42,7 +42,7 @@ public class AttendanceRecordController {
     public ResponseEntity<?> markAttendance(@RequestBody AttendanceSessionInOut attendanceSessionIn){
 
         try {
-          return  ResponseEntity.status(HttpStatus.CREATED).body(attendanceRecordService.addAttendanceRecord(attendanceSessionIn));
+          return  ResponseEntity.ok(attendanceRecordService.addAttendanceRecord(attendanceSessionIn));
 
         }
 

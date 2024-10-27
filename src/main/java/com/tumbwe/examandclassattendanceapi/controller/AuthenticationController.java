@@ -26,7 +26,7 @@ public class AuthenticationController {
     public ResponseEntity<?> registerUser(@RequestBody RegisterUser request) {
         try {
             RegisterResponse registerResponse = authService.register(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(registerResponse);
+            return ResponseEntity.ok(registerResponse);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\": \"User registration failed: " + e.getMessage() + "\"}");
         }

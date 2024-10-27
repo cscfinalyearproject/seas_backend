@@ -7,6 +7,7 @@ import com.tumbwe.examandclassattendanceapi.model.Student;
 import com.tumbwe.examandclassattendanceapi.repository.StudentRepository;
 import com.tumbwe.examandclassattendanceapi.service.StudentService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -25,11 +26,12 @@ public class StudentServiceImpl implements StudentService {
 
         if (student.isEmpty())
         {
+            System.out.println("in here");
             Student newStudent = new Student();
             newStudent.setStudentId(studentDto.getStudentId());
-            if (!studentDto.getFullname().isBlank())
+            if (!StringUtils.isBlank(studentDto.getFullname()))
                 newStudent.setFullName(studentDto.getFullname());
-            if (!studentDto.getFingerprintTemplate().isBlank())
+            if (!StringUtils.isBlank(studentDto.getFingerprintTemplate()))
                 newStudent.setFingerprintTemplate(studentDto.getFingerprintTemplate());
             try {
                 Student savedStudent = studentRepository.save(newStudent);

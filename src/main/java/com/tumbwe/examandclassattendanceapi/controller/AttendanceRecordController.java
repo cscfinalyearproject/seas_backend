@@ -28,12 +28,13 @@ public class AttendanceRecordController {
     public ResponseEntity<?> markAttendance(@RequestBody AttendanceSessionOut attendanceSessionIn){
 
         try {
-          return  ResponseEntity.ok(attendanceRecordService.addAttendanceRecord(attendanceSessionIn));
+          attendanceRecordService.addAttendanceRecord(attendanceSessionIn);
+          return ResponseEntity.ok("Attendance Marked Successfully");
 
         }
 
         catch (Exception e){
-            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Students absent");
+            return  ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 

@@ -24,16 +24,17 @@ public class AttendanceRecord {
     private Course course;
 
     @ManyToOne
-    @JoinColumn(name = "session")
+    @JoinColumn(name = "attendance_session_id")
     private AttendanceSession session;
 
     private LocalDate timeStamp;
     private String attendanceType;
 
-    public AttendanceRecord(Student student, Course course, String attendanceType) {
+    public AttendanceRecord(Student student, Course course, String attendanceType, AttendanceSession session ) {
         this.student = student;
         this.course = course;
         this.attendanceType = attendanceType;
         this.timeStamp = LocalDate.now();
+        this.session = session;
     }
 }

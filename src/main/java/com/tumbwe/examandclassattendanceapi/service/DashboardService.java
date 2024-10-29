@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface DashboardService {
@@ -26,7 +27,7 @@ public interface DashboardService {
     List<NotificationDto> getLowAttendanceNotifications(Long department);
     List<CourseStatisticsDto> getCourseStatistics(Long department);
     List<YearDto> getDistinctYears();
-    List<CourseAttendanceDto> getCourseAttendance(Long department);
+    List<Map<String, Object>> getCourseAttendanceTrends(Long departmentId);
     List<SessionAttendanceDto> getSessionAttendance(Long department);
     List<DashboardCourseDto> getDistinctCourses();
     List<String> saveStudent(MultipartFile file) throws Exception;

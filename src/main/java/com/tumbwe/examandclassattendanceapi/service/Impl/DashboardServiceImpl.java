@@ -248,23 +248,36 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<CourseAttendanceDto> getCourseAttendance(Long department) {
-        List<Object[]> results = attendanceRecordRepository.findCourseAttendance(department);
-        List<CourseAttendanceDto> attendanceList = new ArrayList<>();
+    public List<Map<String, Object>> getCourseAttendanceTrends(Long departmentId) {
+        List<Object[]> results = attendanceRecordRepository.findCourseAttendance(departmentId);
+        Map<String, Map<String, Object>> courseSessions = new LinkedHashMap<>();
 
-        for (Object[] result : results) {
-            String courseCode = (String) result[0];
-            String courseName = (String) result[1];
+        for (Object[] row : results) {
+            String courseCode = (String) row[0];
+            String courseName = (String) row[1];
+            Date sessionDate = (Date) row[2];
+            BigDecimal attendancePercentageBigDecimal = (BigDecimal) row[3];
 
-            // Cast the result to Long instead of BigInteger
-            long presentStudents = ((BigDecimal) result[2]).longValue();
-            long absentStudents = ((BigDecimal) result[3]).longValue();
+            Double attendancePercentage = attendancePercentageBigDecimal != null ? attendancePercentageBigDecimal.doubleValue() : null;
 
-            CourseAttendanceDto dto = new CourseAttendanceDto(courseCode, courseName, presentStudents, absentStudents);
-            attendanceList.add(dto);
+            courseSessions.computeIfAbsent(courseCode, k -> {
+                Map<String, Object> courseData = new LinkedHashMap<>();
+                courseData.put("courseCode", courseCode);
+                courseData.put("courseName", courseName);
+                courseData.put("sessions", new ArrayList<>());
+                return courseData;
+            });
+
+            Map<String, Object> sessionData = new HashMap<>();
+            sessionData.put("sessionDate", sessionDate.toString());
+            sessionData.put("attendancePercentage", attendancePercentage);
+
+            ((List<Object>) courseSessions.get(courseCode).get("sessions")).add(sessionData);
         }
-        return attendanceList;
+
+        return new ArrayList<>(courseSessions.values());
     }
+
 
 
     @Override

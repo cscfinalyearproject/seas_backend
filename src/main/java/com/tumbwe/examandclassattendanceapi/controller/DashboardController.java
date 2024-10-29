@@ -148,7 +148,7 @@ public class DashboardController {
     @GetMapping(path = "/statistics/attendance-trends/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getCourseAttendance(@PathVariable Long departmentId) {
         try {
-            return ResponseEntity.ok(dashboardService.getCourseAttendance(departmentId));
+            return ResponseEntity.ok(dashboardService.getCourseAttendanceTrends(departmentId));
         }catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }

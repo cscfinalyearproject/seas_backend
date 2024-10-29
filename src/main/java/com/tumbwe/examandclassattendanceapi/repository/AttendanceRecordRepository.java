@@ -100,15 +100,23 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
     @Query(value = "SELECT DISTINCT YEAR(ats.time_stamp) AS year FROM attendance_sessions ats ORDER BY year DESC", nativeQuery = true)
     List<Integer> findDistinctYears();
 
-    @Query(value = "SELECT c.course_code, c.course_name, " +
-            "SUM(IF(ar.time_stamp IS NOT NULL, 1, 0)) AS present_students, " +
-            "SUM(IF(ar.time_stamp IS NULL, 1, 0)) AS absent_students " +
+    @Query(value = "SELECT c.course_code AS courseCode, " +
+            "c.course_name AS courseName, " +
+            "ats.time_stamp AS sessionDate, " +
+            "ROUND(COUNT(CASE WHEN ar.time_stamp IS NOT NULL THEN 1 END) * 100.0 / COUNT(s.student_id), 2) AS attendancePercentage " +
             "FROM courses c " +
             "JOIN course_student cs ON cs.course_code = c.course_code " +
-            "LEFT JOIN attendance_record ar ON ar.course_code = cs.course_code AND ar.student_id = cs.student_id " +
-            "WHERE c.department_id = :department " +
-            "GROUP BY c.course_code, c.course_name", nativeQuery = true)
-    List<Object[]> findCourseAttendance(Long department);
+            "JOIN students s ON s.student_id = cs.student_id " +
+            "JOIN attendance_sessions ats ON ats.course_code = c.course_code " +
+            "LEFT JOIN attendance_record ar ON ar.course_code = ats.course_code " +
+            "AND ar.time_stamp = ats.time_stamp " +
+            "AND ar.student_id = s.student_id " +
+            "WHERE c.department_id = :departmentId " +
+            "GROUP BY c.course_code, c.course_name, ats.time_stamp " +
+            "ORDER BY c.course_code, ats.time_stamp",
+            nativeQuery = true)
+    List<Object[]> findCourseAttendance(@Param("departmentId") Long departmentId);
+
 
 
     @Query(value = "SELECT ats.time_stamp AS session_date, c.course_code, c.course_name, " +

@@ -8,7 +8,9 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
+@Builder
 @AllArgsConstructor
+@ToString
 public class AttendanceSessionOut {
     private String sessionId;
     private Set<Student> students;

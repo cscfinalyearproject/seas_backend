@@ -30,10 +30,11 @@ public class AttendanceRecord {
     private LocalDate timeStamp;
     private String attendanceType;
 
-    public AttendanceRecord(Student student, Course course, String attendanceType) {
+    public AttendanceRecord(Student student, Course course, String attendanceType, AttendanceSession session) {
         this.student = student;
         this.course = course;
         this.attendanceType = attendanceType;
         this.timeStamp = LocalDate.now();
+        this.session = session;
     }
 }

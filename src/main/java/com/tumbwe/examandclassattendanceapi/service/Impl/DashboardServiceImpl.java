@@ -21,8 +21,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -255,8 +257,8 @@ public class DashboardServiceImpl implements DashboardService {
             String courseName = (String) result[1];
 
             // Cast the result to Long instead of BigInteger
-            int presentStudents = ((Long) result[2]).intValue();
-            int absentStudents = ((Long) result[3]).intValue();
+            long presentStudents = ((BigDecimal) result[2]).longValue();
+            long absentStudents = ((BigDecimal) result[3]).longValue();
 
             CourseAttendanceDto dto = new CourseAttendanceDto(courseCode, courseName, presentStudents, absentStudents);
             attendanceList.add(dto);
@@ -396,6 +398,89 @@ public class DashboardServiceImpl implements DashboardService {
                 var saved = courseRepository.save(course);
                 if(!saved.equals(course)) {
                     savedStudents.add(courseCode);
+                }
+            }
+        }
+        return savedStudents;
+    }
+
+    @Override
+    public List<Long> saveAttendanceSession(MultipartFile file) throws Exception {
+        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+
+        int numberOfSheets = workbook.getNumberOfSheets();
+        List<Long> savedStudents = new ArrayList<>();
+        // Iterate through each sheet in the workbook
+        for (int i = 0; i < numberOfSheets; i++) {
+            Sheet sheet = workbook.getSheetAt(i);
+            String sheetName = sheet.getSheetName();
+            System.out.println("Processing sheet: " + sheetName);
+
+            // Iterate through each row in the current sheet
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0) {
+                    continue; // Skip header row
+                }
+
+                String attendanceType = getCellValueAsString(row.getCell(0));
+                String status = getCellValueAsString(row.getCell(1));
+                String courseCode = getCellValueAsString(row.getCell(2));
+                Course course = courseRepository.findByCourseCode(courseCode).get();
+                AttendanceSession session = new AttendanceSession();
+                session.setAttendanceType(attendanceType);
+                session.setSessionStatus(status);
+                session.setCourse(course);
+                session.setTimeStamp(LocalDate.now());
+                var saved = attendanceSessionRepository.save(session);
+
+                if(!saved.equals(session)) {
+                    savedStudents.add(saved.getAttendanceSessionId());
+                }
+            }
+        }
+        return savedStudents;
+    }
+
+    @Override
+    public List<OverallStudentDto> getOverallAttendance() {
+        List<Object[]> results = attendanceRecordRepository.findTopThreeOverallAttendance();
+        return results.stream()
+                .map(result -> new OverallStudentDto((String) result[0], (String) result[1] + "%"))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Long> saveAttendanceRecord(MultipartFile file, Long session_id) throws Exception {
+        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+
+        int numberOfSheets = workbook.getNumberOfSheets();
+        List<Long> savedStudents = new ArrayList<>();
+        // Iterate through each sheet in the workbook
+        for (int i = 0; i < numberOfSheets; i++) {
+            Sheet sheet = workbook.getSheetAt(i);
+            String sheetName = sheet.getSheetName();
+            System.out.println("Processing sheet: " + sheetName);
+
+            // Iterate through each row in the current sheet
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0) {
+                    continue; // Skip header row
+                }
+
+                String attendanceType = getCellValueAsString(row.getCell(0));
+                String studentId = getCellValueAsString(row.getCell(2));
+                String courseCode = getCellValueAsString(row.getCell(1));
+                Course course = courseRepository.findByCourseCode(courseCode).get();
+                AttendanceRecord record = new AttendanceRecord();
+                record.setAttendanceType(attendanceType);
+                Student student = studentRepository.findById(studentId).get();
+                record.setStudent(student);
+                record.setCourse(course);
+                record.setTimeStamp(LocalDate.now());
+                var saved = attendanceRecordRepository.save(record);
+
+                if(!saved.equals(record)) {
+                    savedStudents.add(saved.getAttendanceId());
                 }
             }
         }

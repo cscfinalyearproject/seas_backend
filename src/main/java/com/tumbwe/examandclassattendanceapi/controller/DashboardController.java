@@ -172,6 +172,15 @@ public class DashboardController {
         }
     }
 
+    @GetMapping(path = "/attendance/get-top-attendees", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getTopThree() {
+        try {
+            return ResponseEntity.ok(dashboardService.getOverallAttendance());
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
 
     @PostMapping(path = "/import/students", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> importStudents(@RequestParam("file") MultipartFile file) {
@@ -190,6 +199,26 @@ public class DashboardController {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
+
+    @PostMapping(path = "/import/sessions", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> importSessions(@RequestParam("file") MultipartFile file) {
+        try {
+            return ResponseEntity.ok(dashboardService.saveAttendanceSession(file));
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping(path = "/import/record", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> importRecord(@RequestParam("file") MultipartFile file, @RequestParam("session_id") Long session_id) {
+        try {
+            return ResponseEntity.ok(dashboardService.saveAttendanceRecord(file, session_id));
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+
 
 
 }

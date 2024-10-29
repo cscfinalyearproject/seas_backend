@@ -31,4 +31,7 @@ public interface DashboardService {
     List<DashboardCourseDto> getDistinctCourses();
     List<String> saveStudent(MultipartFile file) throws Exception;
     List<String> saveCourse(MultipartFile file) throws Exception;
+    List<Long> saveAttendanceRecord(MultipartFile file, Long session_id) throws Exception;
+    List<Long> saveAttendanceSession(MultipartFile file) throws Exception;
+    List<OverallStudentDto> getOverallAttendance();
 }

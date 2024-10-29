@@ -12,6 +12,6 @@ import lombok.Setter;
 public class CourseAttendanceDto {
     private String courseCode;
     private String courseName;
-    private int presentStudents;
-    private int absentStudents;
+    private long presentStudents;
+    private long absentStudents;
 }

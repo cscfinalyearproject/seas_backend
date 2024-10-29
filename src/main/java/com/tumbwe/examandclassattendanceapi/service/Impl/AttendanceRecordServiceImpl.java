@@ -40,13 +40,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         attendanceSession.setSessionStatus(SessionStatus.closed.toString());
         attendanceSessionRepository.save(attendanceSession);
 
-        records.stream()
-                .map(record -> new AttendanceRecordDTO(
-                        record.getStudent().getStudentId(),
-                        record.getCourse().getCourseCode(),
-                        record.getAttendanceType()
-                ))
-                .collect(Collectors.toSet());
 
     }
 

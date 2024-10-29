@@ -29,7 +29,7 @@ public class AttendanceRecordController {
 
         try {
           attendanceRecordService.addAttendanceRecord(attendanceSessionIn);
-          return ResponseEntity.ok("Attendance Marked Successfully");
+          return ResponseEntity.ok("Attendance marked successfully");
 
         }
 

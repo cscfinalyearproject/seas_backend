@@ -5,7 +5,6 @@ import com.tumbwe.examandclassattendanceapi.exception.ResourceNotFoundException;
 import com.tumbwe.examandclassattendanceapi.model.*;
 import com.tumbwe.examandclassattendanceapi.repository.AttendanceRecordRepository;
 import com.tumbwe.examandclassattendanceapi.repository.AttendanceSessionRepository;
-import com.tumbwe.examandclassattendanceapi.response.AttendanceRecordDTO;
 import com.tumbwe.examandclassattendanceapi.service.AttendanceRecordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -455,8 +455,8 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<OverallStudentDto> getOverallAttendance() {
-        List<Object[]> results = attendanceRecordRepository.findTopThreeOverallAttendance();
+    public List<OverallStudentDto> getOverallAttendance(Long departmentId) {
+        List<Object[]> results = attendanceRecordRepository.findTopThreeOverallAttendance(departmentId);
         return results.stream()
                 .map(result -> new OverallStudentDto((String) result[0], (String) result[1] + "%"))
                 .collect(Collectors.toList());

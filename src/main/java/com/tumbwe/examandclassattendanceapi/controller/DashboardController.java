@@ -172,10 +172,10 @@ public class DashboardController {
         }
     }
 
-    @GetMapping(path = "/attendance/get-top-attendees", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getTopThree() {
+    @GetMapping(path = "/attendance/get-top-attendees/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getTopThree(@PathVariable Long departmentId) {
         try {
-            return ResponseEntity.ok(dashboardService.getOverallAttendance());
+            return ResponseEntity.ok(dashboardService.getOverallAttendance(departmentId));
         }catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }

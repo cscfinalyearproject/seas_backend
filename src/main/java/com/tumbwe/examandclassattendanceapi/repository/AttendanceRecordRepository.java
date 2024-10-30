@@ -120,15 +120,17 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
 
 
     @Query(value = "SELECT ats.time_stamp AS session_date, c.course_code, c.course_name, " +
-            "COUNT(CASE WHEN ar.time_stamp IS NOT NULL THEN 1 END) AS present_students, " +
-            "COUNT(CASE WHEN ar.time_stamp IS NULL THEN 1 END) AS absent_students " +
+            "COUNT(DISTINCT CASE WHEN ar.time_stamp IS NOT NULL THEN ar.student_id END) AS present_students, " +
+            "COUNT(DISTINCT cs.student_id) - COUNT(DISTINCT CASE WHEN ar.time_stamp IS NOT NULL THEN ar.student_id END) AS absent_students " +
             "FROM attendance_sessions ats " +
             "JOIN courses c ON c.course_code = ats.course_code " +
-            "LEFT JOIN attendance_record ar ON ar.course_code = ats.course_code AND ar.time_stamp = ats.time_stamp " +
+            "JOIN course_student cs ON cs.course_code = c.course_code " +
+            "LEFT JOIN attendance_record ar ON ar.course_code = ats.course_code AND ar.time_stamp = ats.time_stamp AND ar.student_id = cs.student_id " +
             "WHERE c.department_id = :department " +
             "GROUP BY ats.time_stamp, c.course_code, c.course_name " +
             "ORDER BY ats.time_stamp", nativeQuery = true)
-    List<Object[]> findSessionAttendance(Long department);
+    List<Object[]> findSessionAttendance(@Param("department") Long department);
+
 
     @Query(value = "SELECT s.full_name AS name, " +
             "CAST(ROUND(AVG(IF(ar.time_stamp IS NOT NULL, 100.0, 0)), 2) AS CHAR) AS attendance " +
@@ -136,11 +138,13 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
             "JOIN course_student cs ON cs.student_id = s.student_id " +
             "JOIN courses c ON cs.course_code = c.course_code " +
             "LEFT JOIN attendance_record ar ON ar.course_code = c.course_code AND ar.student_id = s.student_id " +
+            "WHERE c.department_id = :departmentId " +
             "GROUP BY s.student_id " +
             "ORDER BY attendance DESC " +
             "LIMIT 3",
             nativeQuery = true)
-    List<Object[]> findTopThreeOverallAttendance();
+    List<Object[]> findTopThreeOverallAttendance(@Param("departmentId") Long departmentId);
+
 
 
 

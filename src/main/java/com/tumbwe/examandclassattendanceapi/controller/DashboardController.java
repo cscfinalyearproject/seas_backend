@@ -218,7 +218,14 @@ public class DashboardController {
         }
     }
 
-
+    @GetMapping(path = "/attendance/get-by-department-and-intake/{intake}/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getByDepartmentAndIntake(@PathVariable Long departmentId, @PathVariable String intake) {
+        try {
+            return ResponseEntity.ok(dashboardService.getStudentsByDepartmentAndIntake(departmentId,intake));
+        }catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
 
 
 }

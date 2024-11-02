@@ -463,6 +463,11 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
+    public List<CourseStudentProjection> getStudentsByDepartmentAndIntake(Long departmentId, String intake) {
+        return attendanceRecordRepository.findStudentsByDepartmentAndIntake(departmentId, intake);
+    }
+
+    @Override
     public List<Long> saveAttendanceRecord(MultipartFile file, Long session_id) throws Exception {
         Workbook workbook = new XSSFWorkbook(file.getInputStream());
 

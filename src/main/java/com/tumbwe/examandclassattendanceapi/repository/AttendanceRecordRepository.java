@@ -1,5 +1,6 @@
 package com.tumbwe.examandclassattendanceapi.repository;
 
+import com.tumbwe.examandclassattendanceapi.dto.CourseStudentProjection;
 import com.tumbwe.examandclassattendanceapi.model.AttendanceRecord;
 import com.tumbwe.examandclassattendanceapi.model.AttendanceSession;
 import com.tumbwe.examandclassattendanceapi.model.Course;
@@ -145,7 +146,17 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
             nativeQuery = true)
     List<Object[]> findTopThreeOverallAttendance(@Param("departmentId") Long departmentId);
 
-
+    @Query(value = "SELECT c.course_code AS courseCode, c.course_name AS courseName, " +
+            "cs.student_id AS studentId, s.full_name AS fullName, s.intake AS intake, " +
+            "YEAR(CURDATE()) - CAST(SUBSTRING(s.intake, 4, 4) AS UNSIGNED) AS yearOfStudy " +
+            "FROM courses c " +
+            "JOIN course_student cs ON cs.course_code = c.course_code " +
+            "JOIN students s ON s.student_id = cs.student_id " +
+            "WHERE c.department_id = :departmentId AND s.intake LIKE CONCAT('%', :intake, '%') " +
+            "ORDER BY c.course_name, s.full_name",
+            nativeQuery = true)
+    List<CourseStudentProjection> findStudentsByDepartmentAndIntake(@Param("departmentId") Long departmentId,
+                                                     @Param("intake") String intake);
 
 
 

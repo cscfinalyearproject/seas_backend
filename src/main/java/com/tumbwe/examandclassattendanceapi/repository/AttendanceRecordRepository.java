@@ -142,9 +142,9 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
             "WHERE c.department_id = :departmentId " +
             "GROUP BY s.student_id " +
             "ORDER BY attendance DESC " +
-            "LIMIT 3",
+            "LIMIT :limit",
             nativeQuery = true)
-    List<Object[]> findTopThreeOverallAttendance(@Param("departmentId") Long departmentId);
+    List<Object[]> findTopThreeOverallAttendance(@Param("departmentId") Long departmentId, int limit);
 
     @Query(value = "SELECT c.course_code AS courseCode, c.course_name AS courseName, " +
             "cs.student_id AS studentId, s.full_name AS fullName, s.intake AS intake, " +

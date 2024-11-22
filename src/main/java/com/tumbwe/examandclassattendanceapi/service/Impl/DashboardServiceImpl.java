@@ -418,11 +418,12 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<Long> saveAttendanceSession(MultipartFile file) throws Exception {
+    public List<String> saveAttendanceSession(MultipartFile file) throws Exception {
         Workbook workbook = new XSSFWorkbook(file.getInputStream());
-
         int numberOfSheets = workbook.getNumberOfSheets();
         List<Long> savedStudents = new ArrayList<>();
+        List<String> notFoundCourses = new ArrayList<>();
+
         // Iterate through each sheet in the workbook
         for (int i = 0; i < numberOfSheets; i++) {
             Sheet sheet = workbook.getSheetAt(i);
@@ -438,27 +439,38 @@ public class DashboardServiceImpl implements DashboardService {
                 String attendanceType = getCellValueAsString(row.getCell(0));
                 String status = getCellValueAsString(row.getCell(1));
                 String courseCode = getCellValueAsString(row.getCell(2));
-                Course course = null;
-                Optional<Course> c = courseRepository.findByCourseCode(courseCode);
-                if(c.isPresent()){
-                    course = c.get();
-                }else{
-                    throw new Exception("Course not found for code "+ courseCode);
+
+                Optional<Course> courseOptional = courseRepository.findByCourseCode(courseCode);
+                if (courseOptional.isEmpty()) {
+                    // Add course code to the list of not-found courses and skip to the next row
+                    notFoundCourses.add(courseCode);
+                    continue;
                 }
+
+                Course course = courseOptional.get();
+
                 AttendanceSession session = new AttendanceSession();
                 session.setAttendanceType(attendanceType);
                 session.setSessionStatus(status);
                 session.setCourse(course);
                 session.setTimeStamp(LocalDate.now());
-                var saved = attendanceSessionRepository.save(session);
 
-                if(!saved.equals(session)) {
+                AttendanceSession saved = attendanceSessionRepository.save(session);
+                if (!saved.equals(session)) {
                     savedStudents.add(saved.getAttendanceSessionId());
                 }
             }
         }
-        return savedStudents;
+
+        // Print or log not-found courses
+        if (!notFoundCourses.isEmpty()) {
+            System.out.println("Courses not found: " + notFoundCourses);
+        }
+
+        // Optionally, return the list of not-found course codes
+        return notFoundCourses;
     }
+
 
     @Override
     public List<OverallStudentDto> getOverallAttendance(Long departmentId, int limit) {

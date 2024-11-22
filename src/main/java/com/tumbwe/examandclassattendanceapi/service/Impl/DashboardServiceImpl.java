@@ -438,7 +438,13 @@ public class DashboardServiceImpl implements DashboardService {
                 String attendanceType = getCellValueAsString(row.getCell(0));
                 String status = getCellValueAsString(row.getCell(1));
                 String courseCode = getCellValueAsString(row.getCell(2));
-                Course course = courseRepository.findByCourseCode(courseCode).get();
+                Course course = null;
+                Optional<Course> c = courseRepository.findByCourseCode(courseCode);
+                if(c.isPresent()){
+                    course = c.get();
+                }else{
+                    throw new Exception("Course not found for code "+ courseCode);
+                }
                 AttendanceSession session = new AttendanceSession();
                 session.setAttendanceType(attendanceType);
                 session.setSessionStatus(status);

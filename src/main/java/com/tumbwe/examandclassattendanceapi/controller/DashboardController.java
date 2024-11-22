@@ -17,7 +17,7 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
     @GetMapping(path = "/getStudentsByDepartment/{id}")
-    public ResponseEntity<?> findByDepartment(@PathVariable("id") Long id, @RequestParam int year) {
+    public ResponseEntity<?> findByDepartment(@PathVariable("id") Long id, @RequestParam(required = false) Integer year) {
         try {
             return ResponseEntity.ok(dashboardService.getStudentsByDepartment(id, year));
         }catch (Exception e) {
@@ -98,7 +98,7 @@ public class DashboardController {
     }
 
     @GetMapping(path = "/getCourseByDepartment/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getCourseByDepartment(@PathVariable Long departmentId, @RequestParam int year) {
+    public ResponseEntity<?> getCourseByDepartment(@PathVariable Long departmentId, @RequestParam(required = false) Integer year) {
         try {
             return ResponseEntity.ok(dashboardService.getCourseByDepartment(departmentId, year));
         }catch (Exception e) {
@@ -125,7 +125,7 @@ public class DashboardController {
     }
 
     @GetMapping(path = "/statistics/course/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getStatistics(@PathVariable Long departmentId, @RequestParam String from, @RequestParam String to, @RequestParam int year) {
+    public ResponseEntity<?> getStatistics(@PathVariable Long departmentId, @RequestParam(required = false) String from, @RequestParam(required = false) String to, @RequestParam(required = false) Integer year) {
         try {
             return ResponseEntity.ok(dashboardService.getCourseStatistics(departmentId,from,to,year));
         }catch (Exception e) {
@@ -143,7 +143,7 @@ public class DashboardController {
     }
 
     @GetMapping(path = "/statistics/attendance-trends/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getCourseAttendance(@PathVariable Long departmentId, @RequestParam String from, @RequestParam String to, @RequestParam int year) {
+    public ResponseEntity<?> getCourseAttendance(@PathVariable Long departmentId, @RequestParam(required = false) String from, @RequestParam(required = false) String to, @RequestParam(required = false) Integer year) {
         try {
             return ResponseEntity.ok(dashboardService.getCourseAttendanceTrends(departmentId, from, to, year));
         }catch (Exception e) {
@@ -152,7 +152,7 @@ public class DashboardController {
     }
 
     @GetMapping(path = "/statistics/attendance-comparison/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> attendanceComparison(@PathVariable Long departmentId, @RequestParam String to, @RequestParam String from, @RequestParam int year) {
+    public ResponseEntity<?> attendanceComparison(@PathVariable Long departmentId, @RequestParam(required = false) String to, @RequestParam(required = false) String from, @RequestParam(required = false) Integer year) {
         try {
             return ResponseEntity.ok(dashboardService.getSessionAttendance(departmentId, from,to,year));
         }catch (Exception e) {
@@ -170,7 +170,7 @@ public class DashboardController {
     }
 
     @GetMapping(path = "/attendance/get-top-attendees/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getTopThree(@PathVariable Long departmentId, @RequestParam int limit, @RequestParam String from, @RequestParam String to, @RequestParam int year) {
+    public ResponseEntity<?> getTopThree(@PathVariable Long departmentId, @RequestParam int limit, @RequestParam(required = false) String from, @RequestParam(required = false) String to, @RequestParam(required = false) Integer year) {
         try {
             return ResponseEntity.ok(dashboardService.getOverallAttendance(departmentId, limit, from, to, year));
         }catch (Exception e) {

@@ -3,7 +3,6 @@ package com.tumbwe.examandclassattendanceapi.service.Impl;
 import com.tumbwe.examandclassattendanceapi.dto.*;
 import com.tumbwe.examandclassattendanceapi.model.*;
 import com.tumbwe.examandclassattendanceapi.repository.*;
-import com.tumbwe.examandclassattendanceapi.response.AttendanceRecordDTO;
 import com.tumbwe.examandclassattendanceapi.service.DashboardService;
 import com.tumbwe.examandclassattendanceapi.service.EnrollmentService;
 import com.tumbwe.examandclassattendanceapi.utils.CourseUtils;
@@ -17,13 +16,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.security.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -44,13 +38,13 @@ public class DashboardServiceImpl implements DashboardService {
     private final CourseUtils courseUtils;
 
     @Override
-    public Set<Student> getStudentsByDepartment(Long id, int year) {
+    public Set<Student> getStudentsByDepartment(Long id, Integer year) {
         var dep = departmentRepository.findById(id).orElse(null);
         if(dep == null) {
             return new HashSet<>();
         }
         List<Course> courses = null;
-        if(year == 0){
+        if(year == null){
             courses = courseRepository.findAllByDepartment(dep);
         }else{
             List<String> courseCodes = courseUtils.getCourseCodes(dep.getId(), year);
@@ -95,7 +89,6 @@ public class DashboardServiceImpl implements DashboardService {
         List<Object[]> rawRecords = attendanceRecordRepository.getAttendanceCount(courseCode, attendanceType, year);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
 
         return new ArrayList<>();
     }
@@ -166,13 +159,13 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<CourseResponseDto> getCourseByDepartment(Long id, int year) {
+    public List<CourseResponseDto> getCourseByDepartment(Long id, Integer year) {
         var dep = departmentRepository.findById(id).orElse(null);
         if(dep == null) {
             return new ArrayList<>();
         }
         List<Course> courses = null;
-        if(year == 0){
+        if(year == null){
             courses = courseRepository.findAllByDepartment(dep);
         }else{
             List<String> courseCodes = courseUtils.getCourseCodes(dep.getId(), year);
@@ -232,12 +225,20 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<CourseStatisticsDto> getCourseStatistics(Long department, String from, String to, int year) {
-        List<String> courseCodes = courseUtils.getCourseCodes(department,year);
-        if (courseCodes.isEmpty()) {
-            return new ArrayList<>();
+    public List<CourseStatisticsDto> getCourseStatistics(Long department, String from, String to, Integer year) {
+
+        List<Object[]> results = null;
+
+        if(from == null){
+            results = attendanceRecordRepository.findCourseStatistics(department);
+        }else{
+            List<String> courseCodes = courseUtils.getCourseCodes(department,year);
+            if (courseCodes.isEmpty()) {
+                return new ArrayList<>();
+            }
+            results = attendanceRecordRepository.findCourseStatistics(department,from,to,courseCodes);
         }
-        List<Object[]> results = attendanceRecordRepository.findCourseStatistics(department,from,to,courseCodes);
+
         List<CourseStatisticsDto> statistics = new ArrayList<>();
 
         for (Object[] result : results) {
@@ -271,13 +272,19 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<Map<String, Object>> getCourseAttendanceTrends(Long departmentId, String from, String to, int year) {
-        List<String> courseCodes = courseUtils.getCourseCodes(departmentId,year);
-        if(courseCodes.isEmpty()) {
-            return new ArrayList<>();
+    public List<Map<String, Object>> getCourseAttendanceTrends(Long departmentId, String from, String to, Integer year) {
+
+        List<Object[]> results = null;
+        if(from == null){
+            results = attendanceRecordRepository.findCourseAttendance(departmentId);
+        }else{
+            List<String> courseCodes = courseUtils.getCourseCodes(departmentId,year);
+            if(courseCodes.isEmpty()) {
+                return new ArrayList<>();
+            }
+            results = attendanceRecordRepository.findCourseAttendance(departmentId, from, to, courseCodes);
         }
 
-        List<Object[]> results = attendanceRecordRepository.findCourseAttendance(departmentId, from, to, courseCodes);
         Map<String, Map<String, Object>> courseSessions = new LinkedHashMap<>();
 
         for (Object[] row : results) {
@@ -309,11 +316,15 @@ public class DashboardServiceImpl implements DashboardService {
 
 
     @Override
-    public List<SessionAttendanceDto> getSessionAttendance(Long department, String from, String to, int year) {
+    public List<SessionAttendanceDto> getSessionAttendance(Long department, String from, String to, Integer year) {
 
-
-        List<String> courseCodes = courseUtils.getCourseCodes(department,year);
-        List<Object[]> results = attendanceRecordRepository.findSessionAttendance(department, from, to,courseCodes);
+        List<Object[]> results = null;
+        if(from == null){
+            results = attendanceRecordRepository.findSessionAttendance(department);
+        }else{
+            List<String> courseCodes = courseUtils.getCourseCodes(department,year);
+            results = attendanceRecordRepository.findSessionAttendance(department, from, to,courseCodes);
+        }
         List<SessionAttendanceDto> sessionAttendanceList = new ArrayList<>();
 
         for (Object[] result : results) {
@@ -520,13 +531,21 @@ public class DashboardServiceImpl implements DashboardService {
 
 
     @Override
-    public List<OverallStudentDto> getOverallAttendance(Long departmentId, int limit, String from, String to, int year) {
+    public List<OverallStudentDto> getOverallAttendance(Long departmentId, int limit, String from, String to, Integer year) {
 
-        List<String> courseCodes = courseUtils.getCourseCodes(departmentId,year);
-        if (courseCodes.isEmpty()) {
-            return Collections.emptyList();
+
+        List<Object[]> results = null;
+
+        if(from != null){
+            List<String> courseCodes = courseUtils.getCourseCodes(departmentId,year);
+            if (courseCodes.isEmpty()) {
+                return new ArrayList<>();
+            }
+            results = attendanceRecordRepository.findTopThreeOverallAttendance(departmentId, limit, from, to, courseCodes);
+        }else {
+            results = attendanceRecordRepository.findTopOverallAttendance(departmentId,limit);
         }
-        List<Object[]> results = attendanceRecordRepository.findTopThreeOverallAttendance(departmentId, limit, from, to, courseCodes);
+
         return results.stream()
                 .map(result -> new OverallStudentDto((String) result[0], (String) result[1] + "%"))
                 .collect(Collectors.toList());

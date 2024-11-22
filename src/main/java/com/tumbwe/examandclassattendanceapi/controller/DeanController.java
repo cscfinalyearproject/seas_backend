@@ -41,10 +41,10 @@ public class DeanController {
 
     }
 
-    @GetMapping(path = "/statistics/course/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getStatistics(@PathVariable Long departmentId, @RequestParam String from, @RequestParam String to, @RequestParam int year) {
+    @GetMapping(path = "/statistics/course/{schoolId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getStatistics(@PathVariable Long schoolId, @RequestParam String from, @RequestParam String to, @RequestParam int year) {
         try {
-            return ResponseEntity.ok(deanDashBoard.getCourseStatistics(departmentId,from,to,year));
+            return ResponseEntity.ok(deanDashBoard.getCourseStatistics(schoolId,from,to,year));
         }catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }

@@ -9,11 +9,11 @@ import java.util.Set;
 
 public interface DeanDashBoard {
     Set<Student> getStudents(Long schoolId);
-    List<CourseResponseDto> getCourseBySchool(Long id, int year);
+    List<CourseResponseDto> getCourseBySchool(Long id, Integer year);
     List<NotificationDto> getLowAttendanceNotifications(Long schoolId);
-    List<CourseStatisticsDto> getCourseStatistics(Long schoolId, String from, String to, int year);
-    List<Map<String, Object>> getCourseAttendanceTrends(Long schoolId, String from, String to, int year);
-    List<SessionAttendanceDto> getSessionAttendance(Long schoolId, String from, String to, int year);
-    List<OverallStudentDto> getOverallAttendance(Long schoolId, int limit, String from, String to, int year);
+    List<CourseStatisticsDto> getCourseStatistics(Long schoolId, String from, String to, Integer year);
+    List<Map<String, Object>> getCourseAttendanceTrends(Long schoolId, String from, String to, Integer year);
+    List<SessionAttendanceDto> getSessionAttendance(Long schoolId, String from, String to, Integer year);
+    List<OverallStudentDto> getOverallAttendance(Long schoolId, int limit, String from, String to, Integer year);
     List<CourseStudentProjection> getStudentsByDepartmentAndIntake(Long schoolId, String intake);
 }

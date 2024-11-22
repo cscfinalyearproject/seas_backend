@@ -1,6 +1,7 @@
 package com.tumbwe.examandclassattendanceapi.service.Impl;
 
 import com.tumbwe.examandclassattendanceapi.config.EmailSender;
+import com.tumbwe.examandclassattendanceapi.dto.UserLoginDto;
 import com.tumbwe.examandclassattendanceapi.model.*;
 import com.tumbwe.examandclassattendanceapi.repository.AccountRepository;
 import com.tumbwe.examandclassattendanceapi.repository.DepartmentRepository;
@@ -85,11 +86,11 @@ public class AuthService {
         return registerResponse;
     }
 
-    public AuthenticationResponse authenticate(User request){
+    public AuthenticationResponse authenticate(UserLoginDto request){
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                request.getUsername(), request.getPassword()
+                request.getEmail(), request.getPassword()
         ));
-        Optional<User> user = userRepository.findByUsername(request.getUsername());
+        Optional<User> user = userRepository.findByUsername(request.getEmail());
 
         if(user.isPresent()){
             String token = jwtService.generateToken(user.get());
@@ -97,6 +98,8 @@ public class AuthService {
             auth.setToken(token);
             if(user.get().getRole() == Role.ADMIN){
                 auth.setDepartmentId(user.get().getDepartment().getId());
+            }else if(user.get().getRole() == Role.DEAN){
+                auth.setSchoolId(user.get().getDepartment().getSchool().getId());
             }
             return auth;
         }

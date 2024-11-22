@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface DashboardService {
-    Set<Student> getStudentsByDepartment(Long id);
+    Set<Student> getStudentsByDepartment(Long id, int year);
     Set<Student> getStudentsByCourse(String course);
     List<AttendanceRecord> getAttendanceRecordByCourse(String course);
     List<AttendanceRecord> getAttendanceRecordByStudent(String id);
@@ -22,18 +22,18 @@ public interface DashboardService {
     List<AttendanceRecordDto> getAbsentStudents(String courseCode);
     List<AttendanceSessionDto> getSessions(String courseCode);
     List<AttendanceRecordDto> getRecords(Long id);
-    List<CourseResponseDto> getCourseByDepartment(Long id);
+    List<CourseResponseDto> getCourseByDepartment(Long id, int year);
     StudentAttendanceDto getStudentAttendanceById(String id);
     List<NotificationDto> getLowAttendanceNotifications(Long department);
-    List<CourseStatisticsDto> getCourseStatistics(Long department);
+    List<CourseStatisticsDto> getCourseStatistics(Long department, String from, String to, int year);
     List<YearDto> getDistinctYears();
-    List<Map<String, Object>> getCourseAttendanceTrends(Long departmentId);
-    List<SessionAttendanceDto> getSessionAttendance(Long department);
+    List<Map<String, Object>> getCourseAttendanceTrends(Long departmentId, String from, String to, int year);
+    List<SessionAttendanceDto> getSessionAttendance(Long department, String from, String to, int year);
     List<DashboardCourseDto> getDistinctCourses();
     List<String> saveStudent(MultipartFile file) throws Exception;
     List<String> saveCourse(MultipartFile file) throws Exception;
     List<Long> saveAttendanceRecord(MultipartFile file, Long session_id) throws Exception;
     List<String> saveAttendanceSession(MultipartFile file) throws Exception;
-    List<OverallStudentDto> getOverallAttendance(Long departmentId, int limit);
+    List<OverallStudentDto> getOverallAttendance(Long departmentId, int limit, String from, String to, int year);
     List<CourseStudentProjection> getStudentsByDepartmentAndIntake(Long departmentId, String intake);
 }

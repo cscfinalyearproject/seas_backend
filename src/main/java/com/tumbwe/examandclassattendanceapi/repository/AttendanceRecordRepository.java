@@ -85,17 +85,33 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
                 "AND COUNT(ats.time_stamp) >= 0.7 * (SELECT COUNT(*) FROM attendance_sessions ats2 WHERE ats2.course_code = c.course_code);", nativeQuery = true)
         List<Object[]> findLowAttendanceStudents(Long department);
 
-    @Query(value = "SELECT c.course_code, c.course_name, COUNT(DISTINCT cs.student_id) AS total_enrolled_students, " +
-            "IFNULL(AVG((SELECT COUNT(ar.time_stamp) FROM attendance_record ar " +
-            "WHERE ar.course_code = c.course_code AND ar.student_id = cs.student_id) / " +
-            "(SELECT COUNT(DISTINCT ats.time_stamp) FROM attendance_sessions ats WHERE ats.course_code = c.course_code) * 100), 0) AS average_attendance_percentage, " +
-            "COUNT(DISTINCT ats.time_stamp) AS total_classes_held " +
+    @Query(value = "SELECT c.course_code AS courseCode, " +
+            "c.course_name AS courseName, " +
+            "COUNT(DISTINCT cs.student_id) AS totalEnrolledStudents, " +
+            "IFNULL(AVG(( " +
+            "    SELECT COUNT(ar.time_stamp) " +
+            "    FROM attendance_record ar " +
+            "    WHERE ar.course_code = c.course_code " +
+            "    AND ar.student_id = cs.student_id " +
+            "    AND ar.time_stamp BETWEEN :from AND :to " +
+            ") / ( " +
+            "    SELECT COUNT(DISTINCT ats.time_stamp) " +
+            "    FROM attendance_sessions ats " +
+            "    WHERE ats.course_code = c.course_code " +
+            "    AND ats.time_stamp BETWEEN :from AND :to " +
+            ") * 100), 0) AS averageAttendancePercentage, " +
+            "COUNT(DISTINCT ats.time_stamp) AS totalClassesHeld " +
             "FROM courses c " +
             "JOIN course_student cs ON cs.course_code = c.course_code " +
             "LEFT JOIN attendance_sessions ats ON ats.course_code = c.course_code " +
             "WHERE c.department_id = :department " +
-            "GROUP BY c.course_code, c.course_name", nativeQuery = true)
-    List<Object[]> findCourseStatistics(Long department);
+            "AND c.course_code IN (:courseCodes) " +
+            "GROUP BY c.course_code, c.course_name",
+            nativeQuery = true)
+    List<Object[]> findCourseStatistics(@Param("department") Long department,
+                                        @Param("from") String from,
+                                        @Param("to") String to,
+                                        @Param("courseCodes") List<String> courseCodes);
 
 
     @Query(value = "SELECT DISTINCT YEAR(ats.time_stamp) AS year FROM attendance_sessions ats ORDER BY year DESC", nativeQuery = true)
@@ -113,14 +129,22 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
             "AND ar.time_stamp = ats.time_stamp " +
             "AND ar.student_id = s.student_id " +
             "WHERE c.department_id = :departmentId " +
+            "AND ats.time_stamp BETWEEN :from AND :to " +
+            "AND c.course_code IN :courseCodes " +
             "GROUP BY c.course_code, c.course_name, ats.time_stamp " +
             "ORDER BY c.course_code, ats.time_stamp",
             nativeQuery = true)
-    List<Object[]> findCourseAttendance(@Param("departmentId") Long departmentId);
+    List<Object[]> findCourseAttendance(@Param("departmentId") Long departmentId,
+                                        @Param("from") String from,
+                                        @Param("to") String to,
+                                        @Param("courseCodes") List<String> courseCodes);
 
 
 
-    @Query(value = "SELECT ats.time_stamp AS session_date, c.course_code, c.course_name, " +
+
+    @Query(value = "SELECT ats.time_stamp AS session_date, " +
+            "c.course_code, " +
+            "c.course_name, " +
             "COUNT(DISTINCT CASE WHEN ar.time_stamp IS NOT NULL THEN ar.student_id END) AS present_students, " +
             "COUNT(DISTINCT cs.student_id) - COUNT(DISTINCT CASE WHEN ar.time_stamp IS NOT NULL THEN ar.student_id END) AS absent_students " +
             "FROM attendance_sessions ats " +
@@ -128,9 +152,15 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
             "JOIN course_student cs ON cs.course_code = c.course_code " +
             "LEFT JOIN attendance_record ar ON ar.course_code = ats.course_code AND ar.time_stamp = ats.time_stamp AND ar.student_id = cs.student_id " +
             "WHERE c.department_id = :department " +
+            "AND ats.time_stamp BETWEEN :from AND :to " +
+            "AND c.course_code IN :courseCodes " +
             "GROUP BY ats.time_stamp, c.course_code, c.course_name " +
             "ORDER BY ats.time_stamp", nativeQuery = true)
-    List<Object[]> findSessionAttendance(@Param("department") Long department);
+    List<Object[]> findSessionAttendance(@Param("department") Long department,
+                                         @Param("from") String from,
+                                         @Param("to") String to,
+                                         @Param("courseCodes") List<String> courseCodes);
+
 
 
     @Query(value = "SELECT s.full_name AS name, " +
@@ -140,11 +170,20 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
             "JOIN courses c ON cs.course_code = c.course_code " +
             "LEFT JOIN attendance_record ar ON ar.course_code = c.course_code AND ar.student_id = s.student_id " +
             "WHERE c.department_id = :departmentId " +
+            "AND ar.time_stamp BETWEEN :from AND :to " +
+            "AND c.course_code IN :courseCodes " +
             "GROUP BY s.student_id " +
             "ORDER BY attendance DESC " +
             "LIMIT :limit",
             nativeQuery = true)
-    List<Object[]> findTopThreeOverallAttendance(@Param("departmentId") Long departmentId, int limit);
+    List<Object[]> findTopThreeOverallAttendance(@Param("departmentId") Long departmentId,
+                                                      @Param("limit") int limit,
+                                                      @Param("from") String from,
+                                                      @Param("to") String to,
+                                                      @Param("courseCodes") List<String> courseCodes);
+
+
+
 
     @Query(value = "SELECT c.course_code AS courseCode, c.course_name AS courseName, " +
             "cs.student_id AS studentId, s.full_name AS fullName, s.intake AS intake, " +

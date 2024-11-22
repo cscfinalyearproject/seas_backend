@@ -6,6 +6,7 @@ import com.tumbwe.examandclassattendanceapi.repository.*;
 import com.tumbwe.examandclassattendanceapi.response.AttendanceRecordDTO;
 import com.tumbwe.examandclassattendanceapi.service.DashboardService;
 import com.tumbwe.examandclassattendanceapi.service.EnrollmentService;
+import com.tumbwe.examandclassattendanceapi.utils.CourseUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.CellType;
@@ -22,7 +23,9 @@ import java.math.BigInteger;
 import java.security.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,13 +41,23 @@ public class DashboardServiceImpl implements DashboardService {
     private final AttendanceSessionRepository attendanceSessionRepository;
     private final EnrollmentService enrollmentService;
     private final SchoolRepository schoolRepository;
-
+    private final CourseUtils courseUtils;
 
     @Override
-    public Set<Student> getStudentsByDepartment(Long id) {
-        var courses = courseRepository.findAllByDepartment(departmentRepository.findById(id).orElse(null));
-        Set<Student> students = new HashSet<>();
+    public Set<Student> getStudentsByDepartment(Long id, int year) {
+        var dep = departmentRepository.findById(id).orElse(null);
+        if(dep == null) {
+            return new HashSet<>();
+        }
+        List<Course> courses = null;
+        if(year == 0){
+            courses = courseRepository.findAllByDepartment(dep);
+        }else{
+            List<String> courseCodes = courseUtils.getCourseCodes(dep.getId(), year);
+            courses = courseRepository.findAllByCourseCodes(courseCodes);
+        }
 
+        Set<Student> students = new HashSet<>();
         for (var course : courses) {
             var studentRecords = courseRepository.findStudentsByCourseCode(course.getCourseCode());
             students.addAll(studentRecords);
@@ -153,12 +166,18 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<CourseResponseDto> getCourseByDepartment(Long id) {
+    public List<CourseResponseDto> getCourseByDepartment(Long id, int year) {
         var dep = departmentRepository.findById(id).orElse(null);
         if(dep == null) {
             return new ArrayList<>();
         }
-        var courses = courseRepository.findAllByDepartment(dep);
+        List<Course> courses = null;
+        if(year == 0){
+            courses = courseRepository.findAllByDepartment(dep);
+        }else{
+            List<String> courseCodes = courseUtils.getCourseCodes(dep.getId(), year);
+            courses = courseRepository.findAllByCourseCodes(courseCodes);
+        }
 
         List<CourseResponseDto> courseResponseDtos = new ArrayList<>();
 
@@ -213,8 +232,12 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<CourseStatisticsDto> getCourseStatistics(Long department) {
-        List<Object[]> results = attendanceRecordRepository.findCourseStatistics(department);
+    public List<CourseStatisticsDto> getCourseStatistics(Long department, String from, String to, int year) {
+        List<String> courseCodes = courseUtils.getCourseCodes(department,year);
+        if (courseCodes.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Object[]> results = attendanceRecordRepository.findCourseStatistics(department,from,to,courseCodes);
         List<CourseStatisticsDto> statistics = new ArrayList<>();
 
         for (Object[] result : results) {
@@ -248,8 +271,13 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<Map<String, Object>> getCourseAttendanceTrends(Long departmentId) {
-        List<Object[]> results = attendanceRecordRepository.findCourseAttendance(departmentId);
+    public List<Map<String, Object>> getCourseAttendanceTrends(Long departmentId, String from, String to, int year) {
+        List<String> courseCodes = courseUtils.getCourseCodes(departmentId,year);
+        if(courseCodes.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Object[]> results = attendanceRecordRepository.findCourseAttendance(departmentId, from, to, courseCodes);
         Map<String, Map<String, Object>> courseSessions = new LinkedHashMap<>();
 
         for (Object[] row : results) {
@@ -281,8 +309,11 @@ public class DashboardServiceImpl implements DashboardService {
 
 
     @Override
-    public List<SessionAttendanceDto> getSessionAttendance(Long department) {
-        List<Object[]> results = attendanceRecordRepository.findSessionAttendance(department);
+    public List<SessionAttendanceDto> getSessionAttendance(Long department, String from, String to, int year) {
+
+
+        List<String> courseCodes = courseUtils.getCourseCodes(department,year);
+        List<Object[]> results = attendanceRecordRepository.findSessionAttendance(department, from, to,courseCodes);
         List<SessionAttendanceDto> sessionAttendanceList = new ArrayList<>();
 
         for (Object[] result : results) {
@@ -422,7 +453,9 @@ public class DashboardServiceImpl implements DashboardService {
         Workbook workbook = new XSSFWorkbook(file.getInputStream());
         int numberOfSheets = workbook.getNumberOfSheets();
         List<Long> savedStudents = new ArrayList<>();
-        List<String> notFoundCourses = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
         // Iterate through each sheet in the workbook
         for (int i = 0; i < numberOfSheets; i++) {
@@ -439,21 +472,34 @@ public class DashboardServiceImpl implements DashboardService {
                 String attendanceType = getCellValueAsString(row.getCell(0));
                 String status = getCellValueAsString(row.getCell(1));
                 String courseCode = getCellValueAsString(row.getCell(2));
+                String dateStr = getCellValueAsString(row.getCell(3)); // Assuming the date is in column 3
 
+                // Check for course existence
                 Optional<Course> courseOptional = courseRepository.findByCourseCode(courseCode);
                 if (courseOptional.isEmpty()) {
-                    // Add course code to the list of not-found courses and skip to the next row
-                    notFoundCourses.add(courseCode);
+                    // Add error for not-found course
+                    errors.add("Course code not found for course: " + courseCode);
                     continue;
                 }
 
                 Course course = courseOptional.get();
 
+                // Parse date
+                LocalDate date;
+                try {
+                    date = LocalDate.parse(dateStr, formatter);
+                } catch (DateTimeParseException e) {
+                    // Add error for invalid date format
+                    errors.add("Invalid date format for course: " + courseCode + ", date: " + dateStr);
+                    continue;
+                }
+
+                // Save attendance session
                 AttendanceSession session = new AttendanceSession();
                 session.setAttendanceType(attendanceType);
                 session.setSessionStatus(status);
                 session.setCourse(course);
-                session.setTimeStamp(LocalDate.now());
+                session.setTimeStamp(date); // Assuming setTimeStamp accepts LocalDate
 
                 AttendanceSession saved = attendanceSessionRepository.save(session);
                 if (!saved.equals(session)) {
@@ -462,19 +508,25 @@ public class DashboardServiceImpl implements DashboardService {
             }
         }
 
-        // Print or log not-found courses
-        if (!notFoundCourses.isEmpty()) {
-            System.out.println("Courses not found: " + notFoundCourses);
+        // Log all errors
+        if (!errors.isEmpty()) {
+            System.out.println("Errors encountered:");
+            errors.forEach(System.out::println);
         }
 
-        // Optionally, return the list of not-found course codes
-        return notFoundCourses;
+        // Return list of error messages
+        return errors;
     }
 
 
     @Override
-    public List<OverallStudentDto> getOverallAttendance(Long departmentId, int limit) {
-        List<Object[]> results = attendanceRecordRepository.findTopThreeOverallAttendance(departmentId, limit);
+    public List<OverallStudentDto> getOverallAttendance(Long departmentId, int limit, String from, String to, int year) {
+
+        List<String> courseCodes = courseUtils.getCourseCodes(departmentId,year);
+        if (courseCodes.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Object[]> results = attendanceRecordRepository.findTopThreeOverallAttendance(departmentId, limit, from, to, courseCodes);
         return results.stream()
                 .map(result -> new OverallStudentDto((String) result[0], (String) result[1] + "%"))
                 .collect(Collectors.toList());

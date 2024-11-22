@@ -21,6 +21,9 @@ public interface CourseRepository extends JpaRepository<Course, String> {
 
     List<Course> findAllByDepartment(Department department);
 
+    @Query("SELECT c FROM Course c WHERE c.courseCode IN :courseCodes")
+    List<Course> findAllByCourseCodes(@Param("courseCodes") List<String> courseCodes);
+
     @Query("SELECT distinct(c.enrolledStudents) FROM Course c WHERE c.courseCode = :courseCode")
     List<Student> findStudentsByCourse(@Param("courseCode") String courseCode);
 

@@ -1,5 +1,6 @@
 package com.tumbwe.examandclassattendanceapi.controller;
 
+import com.tumbwe.examandclassattendanceapi.dto.UserLoginDto;
 import com.tumbwe.examandclassattendanceapi.model.AuthenticationResponse;
 import com.tumbwe.examandclassattendanceapi.model.User;
 import com.tumbwe.examandclassattendanceapi.request.RegisterUser;
@@ -33,7 +34,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user){
+    public ResponseEntity<?> login(@RequestBody UserLoginDto user){
         AuthenticationResponse authenticationResponse = authService.authenticate(user);
         if(Objects.equals(authenticationResponse.getToken(), "User not found")){
             return ResponseEntity.status(401).body("{\"error\": \"login failed: ");

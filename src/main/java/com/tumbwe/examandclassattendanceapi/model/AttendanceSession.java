@@ -22,13 +22,15 @@ public class AttendanceSession {
     @JoinColumn(name = "course_code")
     private Course course;
     private String attendanceType;
+    private String deviceId;
 
     private String sessionStatus = SessionStatus.open + "";
     private LocalDate timeStamp;
 
-    public AttendanceSession(Course course, String attendanceType){
+    public AttendanceSession(Course course, String attendanceType, String deviceId){
         this.course = course;
         this.attendanceType = attendanceType;
+        this.deviceId = deviceId;
         this.timeStamp = LocalDate.now();
     }
 }

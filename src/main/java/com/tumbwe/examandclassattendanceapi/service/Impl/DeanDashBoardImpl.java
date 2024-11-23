@@ -117,7 +117,7 @@ public class DeanDashBoardImpl implements DeanDashBoard {
 
             List<Object[]> results = null;
             if(from == null){
-                attendanceRecordRepository.findCourseStatistics(department.getId());
+                results = attendanceRecordRepository.findCourseStatistics(department.getId());
             }else{
                 List<String> courseCodes = courseUtils.getCourseCodes(department.getId(),year);
                 results = attendanceRecordRepository.findCourseStatistics(department.getId(),from,to,courseCodes);

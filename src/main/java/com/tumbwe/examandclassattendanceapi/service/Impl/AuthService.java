@@ -2,6 +2,7 @@ package com.tumbwe.examandclassattendanceapi.service.Impl;
 
 import com.tumbwe.examandclassattendanceapi.config.EmailSender;
 import com.tumbwe.examandclassattendanceapi.dto.UserLoginDto;
+import com.tumbwe.examandclassattendanceapi.dto.UserResponseDto;
 import com.tumbwe.examandclassattendanceapi.model.*;
 import com.tumbwe.examandclassattendanceapi.repository.AccountRepository;
 import com.tumbwe.examandclassattendanceapi.repository.DepartmentRepository;
@@ -15,6 +16,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -140,7 +143,7 @@ public class AuthService {
         throw  new RuntimeException("Token expired or does not exist");
     }
 
-    public boolean resendToken(UUID id){
+    public boolean resendToken(Long id){
         Optional<User> user = userRepository.findById(id);
         if(user.isPresent()){
             Optional<Verification> verification = verificationRepository.findVerificationByUser(user.get());
@@ -158,6 +161,54 @@ public class AuthService {
         }else{
             return false;
         }
+    }
+
+    public List<UserResponseDto> getUsers(){
+        List<User> users = userRepository.findAll();
+        List<UserResponseDto> userResponseDtos = new ArrayList<>();
+        for(User user : users){
+            UserResponseDto userResponseDto = new UserResponseDto();
+            userResponseDto.setId(user.getId());
+            userResponseDto.setEmail(user.getUsername());
+            userResponseDto.setRole(user.getRole().name());
+            userResponseDto.setDepartment(user.getDepartment().getName());
+            Optional<Account> account = accountRepository.findById(user.getAccount().getId());
+            account.ifPresent(value -> userResponseDto.setFullName(value.getFullName()));
+            userResponseDtos.add(userResponseDto);
+        }
+
+        return userResponseDtos;
+    }
+
+    public Boolean deleteUser(Long id){
+        Optional<User> user = userRepository.findById(id);
+        if(user.isPresent()){
+            userRepository.delete(user.get());
+            return true;
+        }
+        return false;
+    }
+
+    public UserResponseDto updateUser(Long id, UserResponseDto userResponseDto){
+        Optional<User> user = userRepository.findById(id);
+        if(user.isPresent()){
+            var updatedUser = user.get();
+            updatedUser.setUsername(userResponseDto.getEmail());
+            updatedUser.setRole(Role.valueOf(userResponseDto.getRole()));
+            if(userResponseDto.getDepartment() != null){
+                Department department = departmentRepository.findByName(userResponseDto.getDepartment());
+                updatedUser.setDepartment(department);
+            }
+            Account account = accountRepository.findById(user.get().getId()).orElse(null);
+            assert account != null;
+            account.setFullName(userResponseDto.getFullName());
+            accountRepository.save(account);
+            updatedUser.setAccount(account);
+            userRepository.save(updatedUser);
+            return userResponseDto;
+        }
+
+        return null;
     }
 
 

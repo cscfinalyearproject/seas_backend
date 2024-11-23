@@ -1,6 +1,7 @@
 package com.tumbwe.examandclassattendanceapi.controller;
 
 import com.tumbwe.examandclassattendanceapi.dto.UserLoginDto;
+import com.tumbwe.examandclassattendanceapi.dto.UserResponseDto;
 import com.tumbwe.examandclassattendanceapi.model.AuthenticationResponse;
 import com.tumbwe.examandclassattendanceapi.model.User;
 import com.tumbwe.examandclassattendanceapi.request.RegisterUser;
@@ -8,6 +9,7 @@ import com.tumbwe.examandclassattendanceapi.response.RegisterResponse;
 import com.tumbwe.examandclassattendanceapi.service.Impl.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -59,13 +61,49 @@ public class AuthenticationController {
     }
 
     @PostMapping("/resend/verify/{user_id}")
-    public ResponseEntity<?> resendVerification(@PathVariable UUID user_id){
+    public ResponseEntity<?> resendVerification(@PathVariable Long user_id){
         boolean response = authService.resendToken(user_id);
         if(response){
             return ResponseEntity.ok("{\"message\": \"Resend token successfully\"}");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\": \"Failed to send token, user does not exist \"}");
     }
+
+    @GetMapping(value = "/getAllUsers", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUsers() {
+        try {
+            return ResponseEntity.ok(authService.getUsers());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\": \"Failed to get users: " + e.getMessage() + "\"}");
+        }
+    }
+
+    @DeleteMapping(value = "/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        try {
+            if(authService.deleteUser(id)){
+                return ResponseEntity.ok("Deleted user successfully");
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User does not exist");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\": \"Delete failed: " + e.getMessage() + "\"}");
+        }
+    }
+
+    @PutMapping(value = "/update/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserResponseDto user) {
+        try {
+            UserResponseDto userResponseDto = authService.updateUser(id,user);
+            if(userResponseDto.equals(user)){
+                return ResponseEntity.ok(userResponseDto);
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User does not exist");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\": \"Update failed: " + e.getMessage() + "\"}");
+        }
+    }
+
+
 
     @GetMapping("/")
     public ResponseEntity<?> test(){

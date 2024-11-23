@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public interface AttendanceSessionRepository extends JpaRepository<AttendanceSession, Long> {
@@ -22,8 +21,8 @@ public interface AttendanceSessionRepository extends JpaRepository<AttendanceSes
     @Query("SELECT a FROM AttendanceSession a WHERE a.course.courseCode = :courseCode AND a.attendanceType = :attendanceType AND a.sessionStatus = 'open' AND a.timeStamp = :date")
     AttendanceSession findOpenSession(String courseCode, String attendanceType, LocalDate date);
 
-    @Query("SELECT a FROM AttendanceSession a WHERE a.sessionStatus = :status")
-    Optional<AttendanceSession> findOpenSession(@Param("status") String status);
+    @Query("SELECT a FROM AttendanceSession a WHERE a.sessionStatus = :status and a.deviceId = :deviceId")
+    Optional<AttendanceSession> findOpenSession(@Param("status") String status, String deviceId);
 
 
     List<AttendanceSession> findAllByCourse(Course course);

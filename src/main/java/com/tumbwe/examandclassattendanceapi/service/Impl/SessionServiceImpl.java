@@ -6,12 +6,9 @@ import com.tumbwe.examandclassattendanceapi.exception.ResourceNotFoundException;
 import com.tumbwe.examandclassattendanceapi.model.*;
 import com.tumbwe.examandclassattendanceapi.repository.AttendanceSessionRepository;
 import com.tumbwe.examandclassattendanceapi.repository.CourseRepository;
-import com.tumbwe.examandclassattendanceapi.repository.StudentRepository;
-import com.tumbwe.examandclassattendanceapi.service.AttendanceSessionService;
 import com.tumbwe.examandclassattendanceapi.service.SessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -36,8 +33,8 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
-    public ActiveSession isSessionAvailable() {
-        Optional<AttendanceSession> openSession = attendanceSessionRepository.findOpenSession(SessionStatus.open.toString());
+    public ActiveSession isSessionAvailable(String deviceId) {
+        Optional<AttendanceSession> openSession = attendanceSessionRepository.findOpenSession(SessionStatus.open.toString(), deviceId);
         if (openSession.isPresent()) {
             // An open session exists
             AttendanceSession attendanceSession = openSession.get();
@@ -66,7 +63,7 @@ public class SessionServiceImpl implements SessionService {
         }
 
         Course course = courseRepository.findByCourseCode(in.getCourseCode()).orElseThrow(() -> new ResourceNotFoundException("Course not found exception"));
-        AttendanceSession attendanceSession = new AttendanceSession(course, in.getType());
+        AttendanceSession attendanceSession = new AttendanceSession(course, in.getType(), in.getDeviceId());
         attendanceSessionRepository.save(attendanceSession);
 
         if (attendanceSession.getAttendanceSessionId() == null)

@@ -42,10 +42,10 @@ public class SessionController {
     }
 
     @GetMapping(path = "/is-session-available", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> checkSession(){
+    public ResponseEntity<?> checkSession(@RequestParam(name = "deviceId", defaultValue = "default") String deviceId){
 
         try {
-            return ResponseEntity.ok(sessionService.isSessionAvailable());
+            return ResponseEntity.ok(sessionService.isSessionAvailable(deviceId));
         }
         catch (Exception e){
             return ResponseEntity.internalServerError().body(e.getMessage());

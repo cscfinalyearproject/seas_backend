@@ -10,7 +10,7 @@ import java.util.List;
 public interface SessionService {
     List<Student> downloadStudents(String course, String attendanceType);
 
-    ActiveSession isSessionAvailable();
+    ActiveSession isSessionAvailable(String deviceId);
 
     String startSession(StartSession in);
 }

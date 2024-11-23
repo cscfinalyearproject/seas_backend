@@ -1,15 +1,19 @@
 package com.tumbwe.examandclassattendanceapi.service.Impl;
 
-import com.tumbwe.examandclassattendanceapi.model.Course;
-import com.tumbwe.examandclassattendanceapi.model.Student;
-import com.tumbwe.examandclassattendanceapi.model.StudentTest;
+import com.tumbwe.examandclassattendanceapi.dto.ActiveSession;
+import com.tumbwe.examandclassattendanceapi.dto.StartSession;
+import com.tumbwe.examandclassattendanceapi.exception.ResourceNotFoundException;
+import com.tumbwe.examandclassattendanceapi.model.*;
+import com.tumbwe.examandclassattendanceapi.repository.AttendanceSessionRepository;
 import com.tumbwe.examandclassattendanceapi.repository.CourseRepository;
 import com.tumbwe.examandclassattendanceapi.repository.StudentRepository;
+import com.tumbwe.examandclassattendanceapi.service.AttendanceSessionService;
 import com.tumbwe.examandclassattendanceapi.service.SessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -17,7 +21,7 @@ import java.util.*;
 public class SessionServiceImpl implements SessionService {
 
     private final CourseRepository courseRepository;
-    private final WebClient.Builder webClientBuilder;
+    private final AttendanceSessionRepository attendanceSessionRepository;
 
     @Override
     public List<Student> downloadStudents(String courseCode, String attendanceType) {
@@ -29,6 +33,46 @@ public class SessionServiceImpl implements SessionService {
             }
         }
         return eligibleStudent;
+    }
+
+    @Override
+    public ActiveSession isSessionAvailable() {
+        Optional<AttendanceSession> openSession = attendanceSessionRepository.findOpenSession(SessionStatus.open.toString());
+        if (openSession.isPresent()) {
+            // An open session exists
+            AttendanceSession attendanceSession = openSession.get();
+          return new ActiveSession(
+                    true, attendanceSession.getAttendanceSessionId() + "" , attendanceSession.getCourse().getCourseCode(),  attendanceSession.getAttendanceType()
+            );
+
+        } else {
+            return new ActiveSession(false, "", "", "");
+
+        }
+
+
+    }
+
+    private boolean isSessionAlreadyStarted(String courseCode, String attendanceType) {
+        LocalDate today = LocalDate.now(); // Current date
+        AttendanceSession openSession = attendanceSessionRepository.findOpenSession(courseCode, attendanceType, today);
+        return openSession != null; // Return true if a session exists
+    }
+    @Override
+    public String startSession(StartSession in) {
+
+        if (isSessionAlreadyStarted(in.getCourseCode(), in.getType())) {
+            throw new IllegalStateException("A session for this course and attendance type is already open today!");
+        }
+
+        Course course = courseRepository.findByCourseCode(in.getCourseCode()).orElseThrow(() -> new ResourceNotFoundException("Course not found exception"));
+        AttendanceSession attendanceSession = new AttendanceSession(course, in.getType());
+        attendanceSessionRepository.save(attendanceSession);
+
+        if (attendanceSession.getAttendanceSessionId() == null)
+            throw new RuntimeException("Failed to save session to the database");
+
+        return "Session Started Successfully";
     }
 
     private boolean checkStudentStatus(String studentId, String courseCode, String attendanceType){

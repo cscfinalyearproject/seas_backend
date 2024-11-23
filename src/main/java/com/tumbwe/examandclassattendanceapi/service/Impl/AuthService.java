@@ -101,6 +101,7 @@ public class AuthService {
             }else if(user.get().getRole() == Role.DEAN){
                 auth.setSchoolId(user.get().getDepartment().getSchool().getId());
             }
+            auth.setRole(user.get().getRole().name());
             return auth;
         }
         return null;

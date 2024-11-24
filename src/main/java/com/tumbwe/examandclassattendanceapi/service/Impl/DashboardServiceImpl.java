@@ -72,7 +72,26 @@ public class DashboardServiceImpl implements DashboardService {
         if(courseRecord == null) {
             return new ArrayList<>();
         }
-        return attendanceRecordRepository.findAllByCourseOrderByStudent(courseRecord);
+        List<AttendanceRecord> attendanceRecords = attendanceRecordRepository.findAllByCourseOrderByStudent(courseRecord);
+        List<AttendanceRecord> attendanceRecordList = new ArrayList<>();
+        for(AttendanceRecord attendanceRecord: attendanceRecords){
+            AttendanceRecord attendanceRecord1 = getAttendanceRecord(attendanceRecord, courseRecord);
+            attendanceRecordList.add(attendanceRecord1);
+        }
+
+        return attendanceRecordList;
+    }
+
+    private AttendanceRecord getAttendanceRecord(AttendanceRecord attendanceRecord, Course courseRecord) {
+        AttendanceRecord attendanceRecord1 = new AttendanceRecord();
+        attendanceRecord1.setAttendanceId(attendanceRecord.getAttendanceId());
+        AttendanceSession attendanceSession = attendanceRecord.getSession();
+        attendanceRecord1.setSession(attendanceSession);
+        courseRecord.setDepartment(null);
+        attendanceRecord1.setCourse(courseRecord);
+        attendanceRecord1.setAttendanceType(attendanceRecord.getAttendanceType());
+        attendanceRecord1.setTimeStamp(attendanceRecord.getTimeStamp());
+        return attendanceRecord1;
     }
 
     @Override

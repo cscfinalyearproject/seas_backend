@@ -235,15 +235,24 @@ public class DeanDashBoardImpl implements DeanDashBoard {
         // Process each department
         for (Department department : departments) {
             List<Object[]> results = null;
-            if(from == null){
-                results = attendanceRecordRepository.findTopOverallAttendance(department.getId(),limit);
-            }else{
-                // Get the course codes for the given department and year
+            if(from != null && year != null){
                 List<String> courseCodes = courseUtils.getCourseCodes(department.getId(), year);
-
-                // Fetch attendance data
                 results = attendanceRecordRepository.findTopThreeOverallAttendance(
                         department.getId(), limit, from, to, courseCodes
+                );
+            }
+            if(from != null){
+                results = attendanceRecordRepository.findTopThreeOverallAttendance(limit, department.getId(),from, to);
+            }else if( year != null){
+                List<String> courseCodes = courseUtils.getCourseCodes(department.getId(), year);
+                results = attendanceRecordRepository.findTopThreeOverallAttendance(
+                        department.getId(), limit, courseCodes
+                );
+            }
+            else{
+                // Fetch attendance data
+                results = attendanceRecordRepository.findTopThreeOverallAttendance(
+                        department.getId(), limit
                 );
             }
 

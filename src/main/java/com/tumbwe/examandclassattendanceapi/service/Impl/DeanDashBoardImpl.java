@@ -58,6 +58,7 @@ public class DeanDashBoardImpl implements DeanDashBoard {
 
         for(Department department : departments){
             List<Course> courses = null;
+
             if(year == null){
                 courses = courseRepository.findAllByDepartment(department);
             }else{
@@ -116,11 +117,17 @@ public class DeanDashBoardImpl implements DeanDashBoard {
         for(Department department : departments){
 
             List<Object[]> results = null;
-            if(from == null){
-                results = attendanceRecordRepository.findCourseStatistics(department.getId());
-            }else{
+            if(from != null && to != null){
                 List<String> courseCodes = courseUtils.getCourseCodes(department.getId(),year);
                 results = attendanceRecordRepository.findCourseStatistics(department.getId(),from,to,courseCodes);
+            }
+            if(from != null){
+                results = attendanceRecordRepository.findCourseStatistics(department.getId());
+            }else if(year != null){
+                List<String> courseCodes = courseUtils.getCourseCodes(department.getId(),year);
+                results = attendanceRecordRepository.findCourseStatistics(department.getId(),courseCodes);
+            }else{
+                results = attendanceRecordRepository.findCourseStatistics(department.getId());
             }
 
             for (Object[] result : results) {
@@ -152,11 +159,18 @@ public class DeanDashBoardImpl implements DeanDashBoard {
         for(Department department : departments){
 
             List<Object[]> results = null;
-            if(from == null){
-                results = attendanceRecordRepository.findCourseAttendance(department.getId());
-            }else{
+            if(from != null && year != null){
                 List<String> courseCodes = courseUtils.getCourseCodes(department.getId(),year);
                 results = attendanceRecordRepository.findCourseAttendance(department.getId(), from, to, courseCodes);
+            }
+            else if(from != null){
+                results = attendanceRecordRepository.findCourseAttendance(department.getId(), from,to);
+            }else if(year != null){
+                List<String> courseCodes = courseUtils.getCourseCodes(department.getId(),year);
+                results = attendanceRecordRepository.findCourseAttendance(department.getId(), courseCodes);
+            }
+            else{
+                results = attendanceRecordRepository.findCourseAttendance(department.getId());
             }
 
             for (Object[] row : results) {
@@ -197,11 +211,18 @@ public class DeanDashBoardImpl implements DeanDashBoard {
         List<SessionAttendanceDto> sessionAttendanceList = new ArrayList<>();
         for(Department department : departments){
             List<Object[]> results = null;
-            if(from == null){
-                results = attendanceRecordRepository.findSessionAttendance(department.getId());
-            }else{
+            if(from != null && year != null){
                 List<String> courseCodes = courseUtils.getCourseCodes(department.getId(),year);
                 results = attendanceRecordRepository.findSessionAttendance(department.getId(), from, to,courseCodes);
+            }
+            else if(from != null){
+                results = attendanceRecordRepository.findSessionAttendance(department.getId(), from, to);
+            }else if(year != null){
+                List<String> courseCodes = courseUtils.getCourseCodes(department.getId(),year);
+                results = attendanceRecordRepository.findSessionAttendance(department.getId(),courseCodes);
+            }
+            else{
+                results = attendanceRecordRepository.findSessionAttendance(department.getId());
             }
 
             for (Object[] result : results) {

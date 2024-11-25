@@ -221,8 +221,15 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<NotificationDto> getLowAttendanceNotifications(Long department) {
-        List<Object[]> results = attendanceRecordRepository.findLowAttendanceStudents(department);
+    public List<NotificationDto> getLowAttendanceNotifications(Long department, Integer year) {
+        List<Object[]> results = null;
+
+        if(year != null){
+            List<String> courseCodes = courseUtils.getCourseCodes(department, year);
+            results = attendanceRecordRepository.findLowAttendanceStudents(department,courseCodes);
+        }else{
+            results = attendanceRecordRepository.findLowAttendanceStudents(department);
+        }
         List<NotificationDto> notifications = new ArrayList<>();
 
         for (Object[] result : results) {

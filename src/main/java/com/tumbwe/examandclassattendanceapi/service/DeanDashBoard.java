@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.Set;
 
 public interface DeanDashBoard {
-    Set<Student> getStudents(Long schoolId);
+    Set<Student> getStudents(Long schoolId, Integer year);
     List<CourseResponseDto> getCourseBySchool(Long id, Integer year);
-    List<NotificationDto> getLowAttendanceNotifications(Long schoolId);
+    List<NotificationDto> getLowAttendanceNotifications(Long schoolId, Integer year);
     List<CourseStatisticsDto> getCourseStatistics(Long schoolId, String from, String to, Integer year);
     List<Map<String, Object>> getCourseAttendanceTrends(Long schoolId, String from, String to, Integer year);
     List<SessionAttendanceDto> getSessionAttendance(Long schoolId, String from, String to, Integer year);

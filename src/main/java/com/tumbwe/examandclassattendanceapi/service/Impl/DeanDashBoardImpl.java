@@ -26,7 +26,7 @@ public class DeanDashBoardImpl implements DeanDashBoard {
     private final AttendanceRecordRepository attendanceRecordRepository;
 
     @Override
-    public Set<Student> getStudents(Long schoolId) {
+    public Set<Student> getStudents(Long schoolId, Integer year) {
         Optional<School> school = schoolRepository.findById(schoolId);
 
         if(school.isEmpty()){
@@ -35,7 +35,13 @@ public class DeanDashBoardImpl implements DeanDashBoard {
         List<Department> departments = departmentRepository.findAllBySchool(school.get());
         Set<Student> students = new HashSet<>();
         for(Department department : departments){
-            List<Course> courses = courseRepository.findAllByDepartment(department);
+            List<Course> courses = null;
+            if(year == null){
+                courses = courseRepository.findAllByDepartment(department);
+            }else {
+                Set<String> courseCodes = new HashSet<>(courseUtils.getCourseCodes(department.getId(), year));
+                courses = courseRepository.findAllByDepartmentAndCourseCodeIn(department,courseCodes);
+            }
             for (var course : courses) {
                 var studentRecords = courseRepository.findStudentsByCourseCode(course.getCourseCode());
                 students.addAll(studentRecords);
@@ -78,7 +84,7 @@ public class DeanDashBoardImpl implements DeanDashBoard {
     }
 
     @Override
-    public List<NotificationDto> getLowAttendanceNotifications(Long schoolId) {
+    public List<NotificationDto> getLowAttendanceNotifications(Long schoolId, Integer year) {
         Optional<School> school = schoolRepository.findById(schoolId);
 
         if(school.isEmpty()){
@@ -88,7 +94,14 @@ public class DeanDashBoardImpl implements DeanDashBoard {
         List<NotificationDto> notifications = new ArrayList<>();
 
         for(Department department : departments){
-            List<Object[]> results = attendanceRecordRepository.findLowAttendanceStudents(department.getId());
+            List<Object[]> results = null;
+
+            if(year != null){
+                List<String> courseCodes = courseUtils.getCourseCodes(department.getId(), year);
+                results = attendanceRecordRepository.findLowAttendanceStudents(department.getId(),courseCodes);
+            }else{
+                results = attendanceRecordRepository.findLowAttendanceStudents(department.getId());
+            }
             for (Object[] result : results) {
                 String studentId = (String) result[0];
                 String fullName = (String) result[1];

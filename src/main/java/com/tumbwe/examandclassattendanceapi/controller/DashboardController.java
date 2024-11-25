@@ -116,9 +116,9 @@ public class DashboardController {
     }
 
     @GetMapping(path = "/notifications/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getNotifications(@PathVariable Long departmentId) {
+    public ResponseEntity<?> getNotifications(@PathVariable Long departmentId, @RequestParam(required = false) Integer year) {
         try {
-            return ResponseEntity.ok(dashboardService.getLowAttendanceNotifications(departmentId));
+            return ResponseEntity.ok(dashboardService.getLowAttendanceNotifications(departmentId, year));
         }catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }

@@ -85,6 +85,23 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
                 "AND COUNT(ats.time_stamp) >= 0.7 * (SELECT COUNT(*) FROM attendance_sessions ats2 WHERE ats2.course_code = c.course_code);", nativeQuery = true)
         List<Object[]> findLowAttendanceStudents(Long department);
 
+    @Query(value = "SELECT s.student_id, s.full_name, c.course_code, c.course_name, " +
+            "ROUND(COUNT(CASE WHEN ar.time_stamp IS NOT NULL THEN 1 END) * 100.0 / COUNT(ats.time_stamp), 2) AS attendance_percentage " +
+            "FROM students s " +
+            "JOIN course_student cs ON cs.student_id = s.student_id " +
+            "JOIN courses c ON cs.course_code = c.course_code " +
+            "JOIN attendance_sessions ats ON ats.course_code = c.course_code " +
+            "LEFT JOIN attendance_record ar ON ar.course_code = ats.course_code AND ar.student_id = s.student_id " +
+            "WHERE c.department_id = :department " +
+            "AND c.course_code IN :courseCodes " +
+            "GROUP BY s.student_id, c.course_code, c.course_name " +
+            "HAVING attendance_percentage < 80 " +
+            "AND COUNT(ats.time_stamp) >= 0.7 * (SELECT COUNT(*) FROM attendance_sessions ats2 WHERE ats2.course_code = c.course_code);",
+            nativeQuery = true)
+    List<Object[]> findLowAttendanceStudents(@Param("department") Long department,
+                                             @Param("courseCodes") List<String> courseCodes);
+
+
     @Query(value = "SELECT c.course_code AS courseCode, " +
             "c.course_name AS courseName, " +
             "COUNT(DISTINCT cs.student_id) AS totalEnrolledStudents, " +

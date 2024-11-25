@@ -24,7 +24,7 @@ public interface DashboardService {
     List<AttendanceRecordDto> getRecords(Long id);
     List<CourseResponseDto> getCourseByDepartment(Long id, Integer year);
     StudentAttendanceDto getStudentAttendanceById(String id);
-    List<NotificationDto> getLowAttendanceNotifications(Long department);
+    List<NotificationDto> getLowAttendanceNotifications(Long department, Integer year);
     List<CourseStatisticsDto> getCourseStatistics(Long department, String from, String to, Integer year);
     List<YearDto> getDistinctYears();
     List<Map<String, Object>> getCourseAttendanceTrends(Long departmentId, String from, String to, Integer year);

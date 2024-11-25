@@ -22,6 +22,15 @@ public class DeanController {
         }
     }
 
+    @GetMapping(path = "/getDepartmentBySchool/{schoolId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getStudents(@PathVariable Long schoolId) {
+        try {
+            return ResponseEntity.ok(deanDashBoard.getAllDepartmentsBySchool(schoolId));
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
     @GetMapping(path = "/getCourses/{schoolId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getCoursesBySchool(@PathVariable Long schoolId, @RequestParam(required = false) Integer year) {
         try {

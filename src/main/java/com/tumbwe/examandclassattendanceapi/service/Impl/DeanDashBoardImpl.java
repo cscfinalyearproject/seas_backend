@@ -322,4 +322,14 @@ public class DeanDashBoardImpl implements DeanDashBoard {
         return courseStudentProjections;
     }
 
+    @Override
+    public List<Department> getAllDepartmentsBySchool(Long schoolId) {
+        Optional<School> school = schoolRepository.findById(schoolId);
+
+        if(school.isEmpty()){
+            return new ArrayList<>();
+        }
+        return departmentRepository.findAllBySchool(school.get());
+    }
+
 }

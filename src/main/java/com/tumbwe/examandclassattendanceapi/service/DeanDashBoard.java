@@ -1,6 +1,7 @@
 package com.tumbwe.examandclassattendanceapi.service;
 
 import com.tumbwe.examandclassattendanceapi.dto.*;
+import com.tumbwe.examandclassattendanceapi.model.Department;
 import com.tumbwe.examandclassattendanceapi.model.Student;
 
 import java.util.List;
@@ -16,4 +17,5 @@ public interface DeanDashBoard {
     List<SessionAttendanceDto> getSessionAttendance(Long schoolId, String from, String to, Integer year);
     List<OverallStudentDto> getOverallAttendance(Long schoolId, int limit, String from, String to, Integer year);
     List<CourseStudentProjection> getStudentsByDepartmentAndIntake(Long schoolId, String intake);
+    List<Department> getAllDepartmentsBySchool(Long schoolId);
 }

@@ -505,7 +505,7 @@ public class DashboardServiceImpl implements DashboardService {
         List<Long> savedStudents = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         // Iterate through each sheet in the workbook
         for (int i = 0; i < numberOfSheets; i++) {

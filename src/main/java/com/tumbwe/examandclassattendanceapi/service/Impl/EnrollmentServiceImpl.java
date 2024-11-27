@@ -43,6 +43,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         try {
             Course savedCourse = courseRepository.save(course);
             String message = "student added successfully to course";
+            System.out.println(message);
             return new EnrollmentResponse(student.getStudentId(), savedCourse.getCourseCode(), message);
         }
         catch (Exception e){

@@ -425,7 +425,7 @@ public class DashboardServiceImpl implements DashboardService {
 
                     var saved = studentRepository.save(student);
 
-
+                    List<String> messages = new ArrayList<>();
                     if(!saved.equals(student)) {
                         for (int j = 3; j < row.getLastCellNum(); j++) {
                             String courseCode = getCellValueAsString(row.getCell(j)).trim(); // Course Code
@@ -433,10 +433,15 @@ public class DashboardServiceImpl implements DashboardService {
                                 EnrollmentDto enrollmentDto = new EnrollmentDto();
                                 enrollmentDto.setStudentId(studentId);
                                 enrollmentDto.setCourseCode(courseCode);
-                                enrollmentService.addStudentToCourse(enrollmentDto);
+                                EnrollmentResponse en = enrollmentService.addStudentToCourse(enrollmentDto);
+                                messages.add(en.getMessage());
                             }
                         }
                         savedStudents.add(studentId);
+                    }
+
+                    for(String msg : messages) {
+                        System.out.println(msg);
                     }
                 }
             }

@@ -10,4 +10,5 @@ public class AuthenticationResponse {
     private String token;
     private Long departmentId;
     private Long schoolId;
+    private String role;
 }

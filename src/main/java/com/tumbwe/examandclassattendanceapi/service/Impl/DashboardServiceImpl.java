@@ -15,7 +15,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -72,7 +71,26 @@ public class DashboardServiceImpl implements DashboardService {
         if(courseRecord == null) {
             return new ArrayList<>();
         }
-        return attendanceRecordRepository.findAllByCourseOrderByStudent(courseRecord);
+        List<AttendanceRecord> attendanceRecords = attendanceRecordRepository.findAllByCourseOrderByStudent(courseRecord);
+        List<AttendanceRecord> attendanceRecordList = new ArrayList<>();
+        for(AttendanceRecord attendanceRecord: attendanceRecords){
+            AttendanceRecord attendanceRecord1 = getAttendanceRecord(attendanceRecord, courseRecord);
+            attendanceRecordList.add(attendanceRecord1);
+        }
+
+        return attendanceRecordList;
+    }
+
+    private AttendanceRecord getAttendanceRecord(AttendanceRecord attendanceRecord, Course courseRecord) {
+        AttendanceRecord attendanceRecord1 = new AttendanceRecord();
+        attendanceRecord1.setAttendanceId(attendanceRecord.getAttendanceId());
+        AttendanceSession attendanceSession = attendanceRecord.getSession();
+        attendanceRecord1.setSession(attendanceSession);
+        courseRecord.setDepartment(null);
+        attendanceRecord1.setCourse(courseRecord);
+        attendanceRecord1.setAttendanceType(attendanceRecord.getAttendanceType());
+        attendanceRecord1.setTimeStamp(attendanceRecord.getTimeStamp());
+        return attendanceRecord1;
     }
 
     @Override
@@ -203,8 +221,15 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<NotificationDto> getLowAttendanceNotifications(Long department) {
-        List<Object[]> results = attendanceRecordRepository.findLowAttendanceStudents(department);
+    public List<NotificationDto> getLowAttendanceNotifications(Long department, Integer year) {
+        List<Object[]> results = null;
+
+        if(year != null){
+            List<String> courseCodes = courseUtils.getCourseCodes(department, year);
+            results = attendanceRecordRepository.findLowAttendanceStudents(department,courseCodes);
+        }else{
+            results = attendanceRecordRepository.findLowAttendanceStudents(department);
+        }
         List<NotificationDto> notifications = new ArrayList<>();
 
         for (Object[] result : results) {
@@ -228,15 +253,18 @@ public class DashboardServiceImpl implements DashboardService {
     public List<CourseStatisticsDto> getCourseStatistics(Long department, String from, String to, Integer year) {
 
         List<Object[]> results = null;
-
-        if(from == null){
-            results = attendanceRecordRepository.findCourseStatistics(department);
-        }else{
+        if(from != null && year != null){
             List<String> courseCodes = courseUtils.getCourseCodes(department,year);
-            if (courseCodes.isEmpty()) {
-                return new ArrayList<>();
-            }
             results = attendanceRecordRepository.findCourseStatistics(department,from,to,courseCodes);
+        }
+        else if(from != null){
+            results = attendanceRecordRepository.findCourseStatistics(department,from,to);
+        }else if(year != null){
+            List<String> courseCodes = courseUtils.getCourseCodes(department,year);
+            results = attendanceRecordRepository.findCourseStatistics(department,courseCodes);
+        }
+        else{
+            results = attendanceRecordRepository.findCourseStatistics(department);
         }
 
         List<CourseStatisticsDto> statistics = new ArrayList<>();
@@ -275,14 +303,18 @@ public class DashboardServiceImpl implements DashboardService {
     public List<Map<String, Object>> getCourseAttendanceTrends(Long departmentId, String from, String to, Integer year) {
 
         List<Object[]> results = null;
-        if(from == null){
-            results = attendanceRecordRepository.findCourseAttendance(departmentId);
-        }else{
+        if(from != null && year != null){
             List<String> courseCodes = courseUtils.getCourseCodes(departmentId,year);
-            if(courseCodes.isEmpty()) {
-                return new ArrayList<>();
-            }
             results = attendanceRecordRepository.findCourseAttendance(departmentId, from, to, courseCodes);
+        }
+        else if(from != null){
+            results = attendanceRecordRepository.findCourseAttendance(departmentId, from,to);
+        }else if(year != null){
+            List<String> courseCodes = courseUtils.getCourseCodes(departmentId,year);
+            results = attendanceRecordRepository.findCourseAttendance(departmentId, courseCodes);
+        }
+        else{
+            results = attendanceRecordRepository.findCourseAttendance(departmentId);
         }
 
         Map<String, Map<String, Object>> courseSessions = new LinkedHashMap<>();
@@ -319,11 +351,18 @@ public class DashboardServiceImpl implements DashboardService {
     public List<SessionAttendanceDto> getSessionAttendance(Long department, String from, String to, Integer year) {
 
         List<Object[]> results = null;
-        if(from == null){
-            results = attendanceRecordRepository.findSessionAttendance(department);
-        }else{
+        if(from != null && year != null){
             List<String> courseCodes = courseUtils.getCourseCodes(department,year);
             results = attendanceRecordRepository.findSessionAttendance(department, from, to,courseCodes);
+        }
+        else if(from != null){
+            results = attendanceRecordRepository.findSessionAttendance(department, from, to);
+        }else if(year != null){
+            List<String> courseCodes = courseUtils.getCourseCodes(department,year);
+            results = attendanceRecordRepository.findSessionAttendance(department,courseCodes);
+        }
+        else{
+            results = attendanceRecordRepository.findSessionAttendance(department);
         }
         List<SessionAttendanceDto> sessionAttendanceList = new ArrayList<>();
 
@@ -386,7 +425,7 @@ public class DashboardServiceImpl implements DashboardService {
 
                     var saved = studentRepository.save(student);
 
-
+                    List<String> messages = new ArrayList<>();
                     if(!saved.equals(student)) {
                         for (int j = 3; j < row.getLastCellNum(); j++) {
                             String courseCode = getCellValueAsString(row.getCell(j)).trim(); // Course Code
@@ -394,10 +433,15 @@ public class DashboardServiceImpl implements DashboardService {
                                 EnrollmentDto enrollmentDto = new EnrollmentDto();
                                 enrollmentDto.setStudentId(studentId);
                                 enrollmentDto.setCourseCode(courseCode);
-                                enrollmentService.addStudentToCourse(enrollmentDto);
+                                EnrollmentResponse en = enrollmentService.addStudentToCourse(enrollmentDto);
+                                messages.add(en.getMessage());
                             }
                         }
                         savedStudents.add(studentId);
+                    }
+
+                    for(String msg : messages) {
+                        System.out.println(msg);
                     }
                 }
             }
@@ -466,7 +510,7 @@ public class DashboardServiceImpl implements DashboardService {
         List<Long> savedStudents = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         // Iterate through each sheet in the workbook
         for (int i = 0; i < numberOfSheets; i++) {
@@ -535,15 +579,18 @@ public class DashboardServiceImpl implements DashboardService {
 
 
         List<Object[]> results = null;
-
-        if(from != null){
+        if(from != null && year != null){
             List<String> courseCodes = courseUtils.getCourseCodes(departmentId,year);
-            if (courseCodes.isEmpty()) {
-                return new ArrayList<>();
-            }
             results = attendanceRecordRepository.findTopThreeOverallAttendance(departmentId, limit, from, to, courseCodes);
-        }else {
-            results = attendanceRecordRepository.findTopOverallAttendance(departmentId,limit);
+        }
+        else if(from != null){
+            results = attendanceRecordRepository.findTopThreeOverallAttendance(limit,departmentId, from, to);
+        }else if(year != null){
+            List<String> courseCodes = courseUtils.getCourseCodes(departmentId,year);
+            results = attendanceRecordRepository.findTopThreeOverallAttendance(departmentId,limit,courseCodes);
+        }
+        else {
+            results = attendanceRecordRepository.findTopThreeOverallAttendance(departmentId,limit);
         }
 
         return results.stream()

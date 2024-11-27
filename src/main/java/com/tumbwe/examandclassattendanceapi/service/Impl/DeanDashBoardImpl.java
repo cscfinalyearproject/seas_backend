@@ -26,7 +26,7 @@ public class DeanDashBoardImpl implements DeanDashBoard {
     private final AttendanceRecordRepository attendanceRecordRepository;
 
     @Override
-    public Set<Student> getStudents(Long schoolId) {
+    public Set<Student> getStudents(Long schoolId, Integer year) {
         Optional<School> school = schoolRepository.findById(schoolId);
 
         if(school.isEmpty()){
@@ -35,7 +35,13 @@ public class DeanDashBoardImpl implements DeanDashBoard {
         List<Department> departments = departmentRepository.findAllBySchool(school.get());
         Set<Student> students = new HashSet<>();
         for(Department department : departments){
-            List<Course> courses = courseRepository.findAllByDepartment(department);
+            List<Course> courses = null;
+            if(year == null){
+                courses = courseRepository.findAllByDepartment(department);
+            }else {
+                Set<String> courseCodes = new HashSet<>(courseUtils.getCourseCodes(department.getId(), year));
+                courses = courseRepository.findAllByDepartmentAndCourseCodeIn(department,courseCodes);
+            }
             for (var course : courses) {
                 var studentRecords = courseRepository.findStudentsByCourseCode(course.getCourseCode());
                 students.addAll(studentRecords);
@@ -58,6 +64,7 @@ public class DeanDashBoardImpl implements DeanDashBoard {
 
         for(Department department : departments){
             List<Course> courses = null;
+
             if(year == null){
                 courses = courseRepository.findAllByDepartment(department);
             }else{
@@ -77,7 +84,7 @@ public class DeanDashBoardImpl implements DeanDashBoard {
     }
 
     @Override
-    public List<NotificationDto> getLowAttendanceNotifications(Long schoolId) {
+    public List<NotificationDto> getLowAttendanceNotifications(Long schoolId, Integer year) {
         Optional<School> school = schoolRepository.findById(schoolId);
 
         if(school.isEmpty()){
@@ -87,7 +94,14 @@ public class DeanDashBoardImpl implements DeanDashBoard {
         List<NotificationDto> notifications = new ArrayList<>();
 
         for(Department department : departments){
-            List<Object[]> results = attendanceRecordRepository.findLowAttendanceStudents(department.getId());
+            List<Object[]> results = null;
+
+            if(year != null){
+                List<String> courseCodes = courseUtils.getCourseCodes(department.getId(), year);
+                results = attendanceRecordRepository.findLowAttendanceStudents(department.getId(),courseCodes);
+            }else{
+                results = attendanceRecordRepository.findLowAttendanceStudents(department.getId());
+            }
             for (Object[] result : results) {
                 String studentId = (String) result[0];
                 String fullName = (String) result[1];
@@ -116,11 +130,17 @@ public class DeanDashBoardImpl implements DeanDashBoard {
         for(Department department : departments){
 
             List<Object[]> results = null;
-            if(from == null){
-                attendanceRecordRepository.findCourseStatistics(department.getId());
-            }else{
+            if(from != null && to != null){
                 List<String> courseCodes = courseUtils.getCourseCodes(department.getId(),year);
                 results = attendanceRecordRepository.findCourseStatistics(department.getId(),from,to,courseCodes);
+            }
+            if(from != null){
+                results = attendanceRecordRepository.findCourseStatistics(department.getId());
+            }else if(year != null){
+                List<String> courseCodes = courseUtils.getCourseCodes(department.getId(),year);
+                results = attendanceRecordRepository.findCourseStatistics(department.getId(),courseCodes);
+            }else{
+                results = attendanceRecordRepository.findCourseStatistics(department.getId());
             }
 
             for (Object[] result : results) {
@@ -152,11 +172,18 @@ public class DeanDashBoardImpl implements DeanDashBoard {
         for(Department department : departments){
 
             List<Object[]> results = null;
-            if(from == null){
-                results = attendanceRecordRepository.findCourseAttendance(department.getId());
-            }else{
+            if(from != null && year != null){
                 List<String> courseCodes = courseUtils.getCourseCodes(department.getId(),year);
                 results = attendanceRecordRepository.findCourseAttendance(department.getId(), from, to, courseCodes);
+            }
+            else if(from != null){
+                results = attendanceRecordRepository.findCourseAttendance(department.getId(), from,to);
+            }else if(year != null){
+                List<String> courseCodes = courseUtils.getCourseCodes(department.getId(),year);
+                results = attendanceRecordRepository.findCourseAttendance(department.getId(), courseCodes);
+            }
+            else{
+                results = attendanceRecordRepository.findCourseAttendance(department.getId());
             }
 
             for (Object[] row : results) {
@@ -197,11 +224,18 @@ public class DeanDashBoardImpl implements DeanDashBoard {
         List<SessionAttendanceDto> sessionAttendanceList = new ArrayList<>();
         for(Department department : departments){
             List<Object[]> results = null;
-            if(from == null){
-                results = attendanceRecordRepository.findSessionAttendance(department.getId());
-            }else{
+            if(from != null && year != null){
                 List<String> courseCodes = courseUtils.getCourseCodes(department.getId(),year);
                 results = attendanceRecordRepository.findSessionAttendance(department.getId(), from, to,courseCodes);
+            }
+            else if(from != null){
+                results = attendanceRecordRepository.findSessionAttendance(department.getId(), from, to);
+            }else if(year != null){
+                List<String> courseCodes = courseUtils.getCourseCodes(department.getId(),year);
+                results = attendanceRecordRepository.findSessionAttendance(department.getId(),courseCodes);
+            }
+            else{
+                results = attendanceRecordRepository.findSessionAttendance(department.getId());
             }
 
             for (Object[] result : results) {
@@ -235,15 +269,24 @@ public class DeanDashBoardImpl implements DeanDashBoard {
         // Process each department
         for (Department department : departments) {
             List<Object[]> results = null;
-            if(from == null){
-                results = attendanceRecordRepository.findTopOverallAttendance(department.getId(),limit);
-            }else{
-                // Get the course codes for the given department and year
+            if(from != null && year != null){
                 List<String> courseCodes = courseUtils.getCourseCodes(department.getId(), year);
-
-                // Fetch attendance data
                 results = attendanceRecordRepository.findTopThreeOverallAttendance(
                         department.getId(), limit, from, to, courseCodes
+                );
+            }
+            if(from != null){
+                results = attendanceRecordRepository.findTopThreeOverallAttendance(limit, department.getId(),from, to);
+            }else if( year != null){
+                List<String> courseCodes = courseUtils.getCourseCodes(department.getId(), year);
+                results = attendanceRecordRepository.findTopThreeOverallAttendance(
+                        department.getId(), limit, courseCodes
+                );
+            }
+            else{
+                // Fetch attendance data
+                results = attendanceRecordRepository.findTopThreeOverallAttendance(
+                        department.getId(), limit
                 );
             }
 
@@ -277,6 +320,16 @@ public class DeanDashBoardImpl implements DeanDashBoard {
         }
 
         return courseStudentProjections;
+    }
+
+    @Override
+    public List<Department> getAllDepartmentsBySchool(Long schoolId) {
+        Optional<School> school = schoolRepository.findById(schoolId);
+
+        if(school.isEmpty()){
+            return new ArrayList<>();
+        }
+        return departmentRepository.findAllBySchool(school.get());
     }
 
 }

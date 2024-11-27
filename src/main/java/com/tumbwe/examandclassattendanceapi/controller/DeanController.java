@@ -14,9 +14,18 @@ public class DeanController {
     private final DeanDashBoard deanDashBoard;
 
     @GetMapping(path = "/getStudents/{schoolId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getStudents(@PathVariable Long schoolId, @RequestParam(required = false) Integer year) {
+        try {
+            return ResponseEntity.ok(deanDashBoard.getStudents(schoolId, year));
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping(path = "/getDepartmentBySchool/{schoolId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getStudents(@PathVariable Long schoolId) {
         try {
-            return ResponseEntity.ok(deanDashBoard.getStudents(schoolId));
+            return ResponseEntity.ok(deanDashBoard.getAllDepartmentsBySchool(schoolId));
         }catch (Exception e){
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
@@ -25,16 +34,16 @@ public class DeanController {
     @GetMapping(path = "/getCourses/{schoolId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getCoursesBySchool(@PathVariable Long schoolId, @RequestParam(required = false) Integer year) {
         try {
-            return ResponseEntity.ok(deanDashBoard.getCourseBySchool(schoolId, year));
+            return ResponseEntity.ok(deanDashBoard.getCourseBySchool(schoolId,year));
         }catch (Exception e){
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
     @GetMapping(path = "/getLowAttendanceNotifications/{schoolId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getLowAttendanceNotifications(@PathVariable Long schoolId) {
+    public ResponseEntity<?> getLowAttendanceNotifications(@PathVariable Long schoolId, @RequestParam(required = false) Integer year) {
         try {
-            return ResponseEntity.ok(deanDashBoard.getLowAttendanceNotifications(schoolId));
+            return ResponseEntity.ok(deanDashBoard.getLowAttendanceNotifications(schoolId, year));
         }catch (Exception e){
             return ResponseEntity.internalServerError().body(e.getMessage());
         }

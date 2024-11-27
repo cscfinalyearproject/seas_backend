@@ -437,5 +437,4 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
                                                      @Param("intake") String intake);
 
 
-    List<AttendanceRecord> findByAttendanceSession(AttendanceSession attendanceSession);
 }

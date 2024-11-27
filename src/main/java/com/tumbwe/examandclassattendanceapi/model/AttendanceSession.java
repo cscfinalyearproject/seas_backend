@@ -24,6 +24,7 @@ public class AttendanceSession {
     private String attendanceType;
     private String deviceId;
 
+
     private String sessionStatus = SessionStatus.open + "";
     private LocalDate timeStamp;
 

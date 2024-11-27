@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,7 +32,9 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             throw new ResourceAlreadyExistsException("Attendance session for Course with Course Code: " +inOut.getSessionId() + " already closed");
         }
 
-        Set<AttendanceRecord> records = inOut.getStudents()
+        Set<Student> students = new HashSet<>(inOut.getStudents());
+
+        Set<AttendanceRecord> records = students
                               .stream()
                               .map(student -> new AttendanceRecord(student, attendanceSession.getCourse(), attendanceSession.getAttendanceType(), attendanceSession)
         ).map(attendanceRecordRepository::save).collect(Collectors.toSet());

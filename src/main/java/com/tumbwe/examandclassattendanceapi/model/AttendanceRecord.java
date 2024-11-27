@@ -24,7 +24,7 @@ public class AttendanceRecord {
     private Course course;
 
     @ManyToOne
-    @JoinColumn(name = "session")
+    @JoinColumn(name = "attendance_session_id")
     private AttendanceSession session;
 
     private LocalDate timeStamp;

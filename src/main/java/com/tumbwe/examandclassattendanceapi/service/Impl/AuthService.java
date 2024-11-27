@@ -96,10 +96,10 @@ public class AuthService {
             String token = jwtService.generateToken(user.get());
             AuthenticationResponse auth = new AuthenticationResponse();
             auth.setToken(token);
-            if(user.get().getRole() == Role.ADMIN){
-                auth.setDepartmentId(user.get().getDepartment().getId());
-            }else if(user.get().getRole() == Role.DEAN){
+            if(user.get().getRole() == Role.DEAN){
                 auth.setSchoolId(user.get().getDepartment().getSchool().getId());
+            }else{
+                auth.setDepartmentId(user.get().getDepartment().getId());
             }
             return auth;
         }

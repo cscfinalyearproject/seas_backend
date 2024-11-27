@@ -16,6 +16,11 @@ import java.util.Set;
 public interface CourseRepository extends JpaRepository<Course, String> {
     Optional<Course> findByCourseCode(String courseCode);
 
+
+
+    @Query("SELECT c FROM Course c JOIN FETCH c.enrolledStudents WHERE c.courseCode = :courseCode")
+    Optional<Course> findByCourseCodeWithStudents(@Param("courseCode") String courseCode);
+
     @Query("SELECT c.enrolledStudents FROM Course c WHERE c.courseCode = :courseCode")
     Set<Student> findStudentsByCourseCode(@Param("courseCode") String courseCode);
 

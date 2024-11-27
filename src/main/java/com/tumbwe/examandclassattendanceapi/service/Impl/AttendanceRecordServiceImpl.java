@@ -32,6 +32,8 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
             throw new ResourceAlreadyExistsException("Attendance session for Course with Course Code: " +inOut.getSessionId() + " already closed");
         }
 
+
+
         Set<Student> students = new HashSet<>(inOut.getStudents());
 
         Set<AttendanceRecord> records = students
@@ -41,7 +43,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         records.forEach(record -> log.info("record: {}", record.getStudent().getStudentId()));
         attendanceSession.setSessionStatus(SessionStatus.closed.toString());
         attendanceSessionRepository.save(attendanceSession);
-
 
     }
 
